@@ -26,6 +26,7 @@ namespace KongStrong
         public int RunStaminaReduction;
         public int JumpStaminaReduction;
         public float CarryWeightBonus;
+        public HitData.DamageModifier FireResistance = HitData.DamageModifier.Normal;
         public string CraftingStation = nameof(CraftingStations.Cauldron);
         public string Ingredients = "";
         public int Amount = 1;
@@ -45,6 +46,8 @@ namespace KongStrong
             RunStaminaReduction = config.Bind(s, "RunStaminaReductionPercent", RunStaminaReduction, "Less stamina used while running, in percent.").Value;
             JumpStaminaReduction = config.Bind(s, "JumpStaminaReductionPercent", JumpStaminaReduction, "Less stamina used per jump, in percent.").Value;
             CarryWeightBonus = config.Bind(s, "CarryWeightBonus", CarryWeightBonus, "Extra carry weight.").Value;
+            FireResistance = config.Bind(s, "FireResistance", FireResistance,
+                "Fire damage while the buff is active. Normal = no change, Resistant = half damage.").Value;
             CraftingStation = config.Bind(s, "CraftingStation", CraftingStation,
                 new ConfigDescription("Where the drink is crafted.", CraftingStations.GetAcceptableValueList())).Value;
             Ingredients = config.Bind(s, "Ingredients", Ingredients, "Comma separated list of ItemPrefab:Amount.").Value;

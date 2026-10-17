@@ -16,7 +16,7 @@ Ein Valheim-Mod mit vier Energydrinks im Stil von Kong Strong: Sie geben dir meh
 | **Kong Strong Sugar Free** (blau) | 5 Min. | +40 Sofort-Ausdauer, +50 % Ausdauer-Regeneration, +10 % Tempo, −25 % Ausdauerverbrauch beim Rennen und Springen |
 | **Kong Strong Urban Classic** (rot, mit Zucker) | 3 Min. | +80 Sofort-Ausdauer, +75 % Ausdauer-Regeneration, +15 % Tempo, −25 % beim Rennen und Springen. **Danach 1 Min. Zuckercrash:** −25 % Ausdauer-Regeneration, −5 % Tempo |
 | **Skyr Energy** (Protein-Drink) | 10 Min. | +20 Sofort-Ausdauer, +50 Tragkraft, +25 % Lebens- und Ausdauer-Regeneration |
-| **Kong Strong XXL** (18,9-L-Kanister) | 20 Min. | Wirkung wie Sugar Free. Wiegt 19 kg und stapelt nicht |
+| **Kong Strong XXL** (18,9-L-Kanister) | 20 Min. | Wirkung wie Sugar Free, dazu **feuerfest** (halber Feuerschaden). Wiegt 19 kg und stapelt nicht |
 
 Es wirkt immer nur ein Kong-Drink auf einmal, und während des Zuckercrashs kannst du keinen neuen trinken. Mit Met lassen sich alle Drinks kombinieren.
 
@@ -106,6 +106,7 @@ Die Abschnitte `[SugarFree]`, `[Classic]`, `[Skyr]` und `[XXL]` haben jeweils di
 | `RunStaminaReductionPercent` | Weniger Ausdauerverbrauch beim Rennen in % |
 | `JumpStaminaReductionPercent` | Weniger Ausdauerverbrauch beim Springen in % |
 | `CarryWeightBonus` | Zusätzliche Tragkraft |
+| `FireResistance` | Feuerschaden während des Buffs: `Normal`, `SlightlyResistant`, `Resistant` (halber Schaden), `VeryResistant` oder `Immune` |
 | `CraftingStation` | Herstellungsort, Standard `Cauldron`, z. B. auch `Workbench` oder `Forge` |
 | `Ingredients` | Zutaten als `Prefab:Anzahl`, durch Kommas getrennt, z. B. `Blueberries:3,Thistle:1`. Unbekannte Namen landen als Warnung im Log |
 | `Amount` | Drinks pro Herstellung |

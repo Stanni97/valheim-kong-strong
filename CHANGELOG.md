@@ -8,6 +8,7 @@
   Gelbem Pilz; Skyr Energy mit Ei; XXL aus Ashlands-Zutaten (Vineberries, Smoke Puffs) und Gelben Pilzen.
   Bestehende Configs behalten ihre alten `Ingredients`.
 - Warnung im Log, wenn eine Zutat in der Config nicht existiert.
+- Kong Strong XXL macht jetzt feuerfest (halber Feuerschaden), einstellbar über `FireResistance`.
 
 ## 1.0.0
 

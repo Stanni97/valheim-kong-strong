@@ -53,7 +53,7 @@ namespace KongStrong
             {
                 Key = "XXL", PrefabName = "KongStrongXXL",
                 BasePrefabs = new[] { "MeadStaminaMedium", "MeadStaminaMinor" },
-                Weight = 19f, StackSize = 1, ModelScale = 1.8f,
+                Weight = 19f, StackSize = 1, ModelScale = 1.8f, FireResistance = HitData.DamageModifier.Resistant,
                 Duration = 1200f, InstantStamina = 40f, StaminaRegenBonus = 50, SpeedBonus = 10,
                 RunStaminaReduction = 25, JumpStaminaReduction = 25,
                 Ingredients = "Vineberry:6,MushroomSmokePuff:3,MushroomYellow:3", Amount = 1,
@@ -89,6 +89,9 @@ namespace KongStrong
 
         private static string Minutes(Drink drink) => Mathf.Max(1, Mathf.RoundToInt(drink.Duration / 60f)).ToString();
 
+        private static bool Fireproof(Drink drink) => drink.FireResistance is HitData.DamageModifier.SlightlyResistant
+            or HitData.DamageModifier.Resistant or HitData.DamageModifier.VeryResistant or HitData.DamageModifier.Immune;
+
         private void AddLocalizations()
         {
             Drink sugarFree = Get("SugarFree"), classic = Get("Classic"), skyr = Get("Skyr"), xxl = Get("XXL");
@@ -115,7 +118,7 @@ namespace KongStrong
                 { "se_kong_skyr_start", "PROTEIN!" },
 
                 { "item_kong_xxl", "Kong Strong XXL (18.9 L)" },
-                { "item_kong_xxl_desc", $"18.9 litres of Sugar Free in a canister. Lasts {Minutes(xxl)} minutes. Good luck carrying it." },
+                { "item_kong_xxl_desc", $"18.9 litres of Sugar Free in a canister. Lasts {Minutes(xxl)} minutes{(Fireproof(xxl) ? " and protects you from fire" : "")}. Good luck carrying it." },
                 { "se_kong_xxl", "Kong Strong XXL" },
                 { "se_kong_xxl_tooltip", "You drank 18.9 litres. Your heart is doing 200 bpm." },
                 { "se_kong_xxl_start", "KONG STRONG XXL!" },
@@ -147,7 +150,7 @@ namespace KongStrong
                 { "se_kong_skyr_start", "PROTEIN!" },
 
                 { "item_kong_xxl", "Kong Strong XXL (18,9 L)" },
-                { "item_kong_xxl_desc", $"18,9 Liter Sugar Free im Kanister. Hält {Minutes(xxl)} Minuten. Viel Spaß beim Tragen." },
+                { "item_kong_xxl_desc", $"18,9 Liter Sugar Free im Kanister. Hält {Minutes(xxl)} Minuten{(Fireproof(xxl) ? " und schützt vor Feuer" : "")}. Viel Spaß beim Tragen." },
                 { "se_kong_xxl", "Kong Strong XXL" },
                 { "se_kong_xxl_tooltip", "Du hast 18,9 Liter getrunken. Dein Herz schlägt mit 200 bpm." },
                 { "se_kong_xxl_start", "KONG STRONG XXL!" },
@@ -228,6 +231,13 @@ namespace KongStrong
             effect.m_runStaminaDrainModifier = -drink.RunStaminaReduction / 100f;
             effect.m_jumpStaminaUseModifier = -drink.JumpStaminaReduction / 100f;
             effect.m_addMaxCarryWeight = drink.CarryWeightBonus;
+            if (drink.FireResistance != HitData.DamageModifier.Normal)
+            {
+                effect.m_mods = new List<HitData.DamageModPair>
+                {
+                    new HitData.DamageModPair { m_type = HitData.DamageType.Fire, m_modifier = drink.FireResistance },
+                };
+            }
 
             // Reuse the drinking sound and particles of the mead we cloned.
             if (baseEffect != null)
