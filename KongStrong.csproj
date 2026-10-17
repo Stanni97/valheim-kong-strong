@@ -83,7 +83,7 @@
     </PropertyGroup>
     <RemoveDir Directories="$(PackageDir)" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PackageDir)/plugins" />
-    <Copy SourceFiles="Thunderstore/icon.png;README.md;CHANGELOG.md" DestinationFolder="$(PackageDir)" />
+    <Copy SourceFiles="Thunderstore/icon.png;README.md;CHANGELOG.md;LICENSE" DestinationFolder="$(PackageDir)" />
     <WriteLinesToFile File="$(PackageDir)/manifest.json" Lines="$(ManifestJson.Trim())" Overwrite="true" />
     <MakeDir Directories="dist" />
     <ZipDirectory SourceDirectory="$(PackageDir)" DestinationFile="dist/KongStrongEnergy-$(Version).zip" Overwrite="true" />
