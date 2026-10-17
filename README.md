@@ -149,6 +149,10 @@ python3 tools/make_icons.py Assets 128
 python3 tools/make_icons.py /tmp/icons256 256   # danach sugarfree.png als Thunderstore/icon.png kopieren
 ```
 
+## Automatische Updates
+
+Diese Mod wird vom [Bifrost Updater](https://github.com/Stanni97/bifrost-updater) mit aktualisiert, wenn er installiert ist. Er prüft beim Spielstart das neueste GitHub-Release. Die Mod nennt dafür ihr Repository in der DLL. Der Updater ist optional, die Mod läuft auch ohne.
+
 ## Hinweis
 
 Dies ist ein inoffizieller Fan-Mod ohne Verbindung zu Lidl, Milbona oder der Marke Kong Strong. Die Icons sind eigene Zeichnungen im Stil der Dosen. In der Welt erscheinen die Drinks vorerst als Met-Flaschen aus dem Hauptspiel, der XXL-Kanister ist dabei etwas größer.
