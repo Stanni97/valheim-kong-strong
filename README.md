@@ -40,7 +40,7 @@ Im **Multiplayer** müssen alle Spieler und der Server den Mod in derselben Vers
 
 ## Installation
 
-Die fertige Mod gibt es auf der Release-Seite als `KongStrongEnergy-<version>.zip`. Darin liegen `plugins/KongStrong.dll` sowie `manifest.json` und `icon.png` für Mod-Manager.
+Die fertige Mod gibt es auf der [Release-Seite](https://github.com/Stanni97/valheim-kong-strong/releases/latest) als `KongStrongEnergy-<version>.zip`. Darin liegen `plugins/KongStrong.dll` sowie `manifest.json` und `icon.png` für Mod-Manager.
 
 ### Mit Mod-Manager (Windows und Linux)
 
@@ -120,8 +120,8 @@ Du brauchst:
 - Valheim mit installiertem BepInExPack und Jotunn. Der Build verwendet die DLLs direkt aus dem Spielordner. NuGet-Pakete werden dabei nicht heruntergeladen.
 
 ```bash
-git clone <repo-url> KongStrong
-cd KongStrong
+git clone https://github.com/Stanni97/valheim-kong-strong.git
+cd valheim-kong-strong
 dotnet build -c Release
 ```
 
