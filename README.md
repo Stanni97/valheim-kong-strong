@@ -147,3 +147,7 @@ python3 tools/make_icons.py /tmp/icons256 256   # danach sugarfree.png als Thund
 ## Hinweis
 
 Dies ist ein inoffizieller Fan-Mod ohne Verbindung zu Lidl, Milbona oder der Marke Kong Strong. Die Icons sind eigene Zeichnungen im Stil der Dosen. In der Welt erscheinen die Drinks vorerst als Met-Flaschen aus dem Hauptspiel, der XXL-Kanister ist dabei etwas größer.
+
+## Lizenz
+
+Code und Icons stehen unter der [MIT-Lizenz](LICENSE). Rechte an den Marken Kong Strong, Milbona und Lidl verleiht die Lizenz nicht, die bleiben bei ihren Inhabern.
