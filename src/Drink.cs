@@ -26,7 +26,7 @@ namespace KongStrong
         public int RunStaminaReduction;
         public int JumpStaminaReduction;
         public float CarryWeightBonus;
-        public string CraftingStation = nameof(CraftingStations.Workbench);
+        public string CraftingStation = nameof(CraftingStations.Cauldron);
         public string Ingredients = "";
         public int Amount = 1;
 

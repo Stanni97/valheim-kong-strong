@@ -20,7 +20,7 @@ namespace KongStrong
         public const string PluginGUID = "felix.kongstrong";
         public const string PluginName = "Kong Strong Energy";
         // Keep in sync with <Version> in KongStrong.csproj.
-        public const string PluginVersion = "1.0.0";
+        public const string PluginVersion = "1.1.0";
 
         // Shared by all drinks and the crash, so only one of them can be active at a time.
         private const string StatusCategory = "kongstrong";
@@ -47,7 +47,6 @@ namespace KongStrong
                 BasePrefabs = new[] { "MeadTasty", "MeadStaminaMinor" },
                 Duration = 600f, InstantStamina = 20f, StaminaRegenBonus = 25, HealthRegenBonus = 25,
                 CarryWeightBonus = 50f,
-                CraftingStation = nameof(CraftingStations.Cauldron),
                 Ingredients = "Honey:1,Blueberries:3,DeerMeat:1", Amount = 2,
             },
             new Drink

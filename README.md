@@ -22,12 +22,14 @@ Es wirkt immer nur ein Kong-Drink auf einmal, und während des Zuckercrashs kann
 
 ## Herstellung
 
-| Drink | Station | Zutaten | Ergibt |
-| --- | --- | --- | --- |
-| Sugar Free | Werkbank | 1 Honig, 3 Himbeeren | 2 |
-| Urban Classic | Werkbank | 2 Honig, 3 Himbeeren | 2 |
-| Skyr Energy | Kessel | 1 Honig, 3 Blaubeeren, 1 Hirschfleisch | 2 |
-| XXL | Werkbank | 5 Honig, 15 Himbeeren | 1 |
+Alle Drinks werden am **Kessel** (Cauldron) gebraut. Den Kessel kannst du bauen, sobald du Zinn aus dem Schwarzwald hast, und er braucht ein Feuer darunter.
+
+| Drink | Zutaten | Ergibt |
+| --- | --- | --- |
+| Sugar Free | 1 Honig, 3 Himbeeren | 2 |
+| Urban Classic | 2 Honig, 3 Himbeeren | 2 |
+| Skyr Energy | 1 Honig, 3 Blaubeeren, 1 Hirschfleisch | 2 |
+| XXL | 5 Honig, 15 Himbeeren | 1 |
 
 Alle Werte, Rezepte und Stationen lassen sich in der Config ändern (siehe [Konfiguration](#konfiguration)).
 
@@ -81,7 +83,7 @@ In [r2modman](https://thunderstore.io/c/valheim/p/ebkr/r2modman/) oder [Gale](ht
 ### Funktioniert es?
 
 - In `BepInEx/LogOutput.log` stehen Zeilen wie `Added KongStrongSugarFree`.
-- An Werkbank und Kessel tauchen die Drinks in der Rezeptliste auf.
+- Am Kessel tauchen die Drinks in der Rezeptliste auf.
 - Zum Testen geht auch die Konsole (F5): erst `devcommands`, dann zum Beispiel `spawn KongStrongSugarFree 5`.
   Die Prefab-Namen sind `KongStrongSugarFree`, `KongStrongClassic`, `KongSkyrEnergy` und `KongStrongXXL`.
 
@@ -102,7 +104,7 @@ Die Abschnitte `[SugarFree]`, `[Classic]`, `[Skyr]` und `[XXL]` haben jeweils di
 | `RunStaminaReductionPercent` | Weniger Ausdauerverbrauch beim Rennen in % |
 | `JumpStaminaReductionPercent` | Weniger Ausdauerverbrauch beim Springen in % |
 | `CarryWeightBonus` | Zusätzliche Tragkraft |
-| `CraftingStation` | Herstellungsort, z. B. `Workbench`, `Cauldron`, `Forge` |
+| `CraftingStation` | Herstellungsort, Standard `Cauldron`, z. B. auch `Workbench` oder `Forge` |
 | `Ingredients` | Zutaten als `Prefab:Anzahl`, durch Kommas getrennt, z. B. `Honey:1,Raspberry:3` |
 | `Amount` | Drinks pro Herstellung |
 
