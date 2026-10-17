@@ -32,14 +32,14 @@ namespace KongStrong
                 Key = "SugarFree", PrefabName = "KongStrongSugarFree",
                 Duration = 300f, InstantStamina = 40f, StaminaRegenBonus = 50, SpeedBonus = 10,
                 RunStaminaReduction = 25, JumpStaminaReduction = 25,
-                Ingredients = "Honey:1,Raspberry:3", Amount = 2,
+                Ingredients = "Blueberries:3,Thistle:1,MushroomYellow:1", Amount = 2,
             },
             new Drink
             {
                 Key = "Classic", PrefabName = "KongStrongClassic", CausesCrash = true,
                 Duration = 180f, InstantStamina = 80f, StaminaRegenBonus = 75, SpeedBonus = 15,
                 RunStaminaReduction = 25, JumpStaminaReduction = 25,
-                Ingredients = "Honey:2,Raspberry:3", Amount = 2,
+                Ingredients = "Honey:2,Raspberry:3,Bloodbag:1,MushroomYellow:1", Amount = 2,
             },
             new Drink
             {
@@ -47,7 +47,7 @@ namespace KongStrong
                 BasePrefabs = new[] { "MeadTasty", "MeadStaminaMinor" },
                 Duration = 600f, InstantStamina = 20f, StaminaRegenBonus = 25, HealthRegenBonus = 25,
                 CarryWeightBonus = 50f,
-                Ingredients = "Honey:1,Blueberries:3,DeerMeat:1", Amount = 2,
+                Ingredients = "ChickenEgg:1,Honey:1,Blueberries:2", Amount = 2,
             },
             new Drink
             {
@@ -56,7 +56,7 @@ namespace KongStrong
                 Weight = 19f, StackSize = 1, ModelScale = 1.8f,
                 Duration = 1200f, InstantStamina = 40f, StaminaRegenBonus = 50, SpeedBonus = 10,
                 RunStaminaReduction = 25, JumpStaminaReduction = 25,
-                Ingredients = "Honey:5,Raspberry:15", Amount = 1,
+                Ingredients = "Vineberry:6,MushroomSmokePuff:3,MushroomYellow:3", Amount = 1,
             },
         };
 
@@ -244,7 +244,7 @@ namespace KongStrong
                 Description = $"$item_{drink.Token}_desc",
                 CraftingStation = CraftingStations.GetInternalName(drink.CraftingStation),
                 Amount = Mathf.Max(1, drink.Amount),
-                Requirements = ParseRequirements(drink.Ingredients),
+                Requirements = ParseRequirements(drink),
                 Icon = icon,
                 Weight = drink.Weight,
                 StackSize = drink.StackSize,
@@ -274,10 +274,10 @@ namespace KongStrong
             return crash;
         }
 
-        private RequirementConfig[] ParseRequirements(string value)
+        private RequirementConfig[] ParseRequirements(Drink drink)
         {
             var requirements = new List<RequirementConfig>();
-            foreach (string entry in value.Split(','))
+            foreach (string entry in drink.Ingredients.Split(','))
             {
                 string[] parts = entry.Split(':');
                 string prefab = parts[0].Trim();
@@ -291,6 +291,12 @@ namespace KongStrong
                 {
                     Logger.LogWarning($"Invalid amount in ingredient '{entry}', using 1.");
                     amount = 1;
+                }
+
+                // Kept anyway, it might be an item another mod registers later.
+                if (PrefabManager.Instance.GetPrefab(prefab) == null)
+                {
+                    Logger.LogWarning($"{drink.PrefabName}: ingredient '{prefab}' was not found, check the prefab name.");
                 }
 
                 requirements.Add(new RequirementConfig(prefab, Mathf.Max(1, amount), 0, true));

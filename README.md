@@ -24,12 +24,14 @@ Es wirkt immer nur ein Kong-Drink auf einmal, und während des Zuckercrashs kann
 
 Alle Drinks werden am **Kessel** (Cauldron) gebraut. Den Kessel kannst du bauen, sobald du Zinn aus dem Schwarzwald hast, und er braucht ein Feuer darunter.
 
-| Drink | Zutaten | Ergibt |
-| --- | --- | --- |
-| Sugar Free | 1 Honig, 3 Himbeeren | 2 |
-| Urban Classic | 2 Honig, 3 Himbeeren | 2 |
-| Skyr Energy | 1 Honig, 3 Blaubeeren, 1 Hirschfleisch | 2 |
-| XXL | 5 Honig, 15 Himbeeren | 1 |
+| Drink | Zutaten | Ergibt | Ab Biom |
+| --- | --- | --- | --- |
+| Sugar Free | 3 Blaubeeren, 1 Distel, 1 Gelber Pilz | 2 | Schwarzwald |
+| Urban Classic | 2 Honig, 3 Himbeeren, 1 Blutbeutel, 1 Gelber Pilz | 2 | Sumpf |
+| Skyr Energy | 1 Ei, 1 Honig, 2 Blaubeeren | 2 | Ebenen |
+| XXL | 6 Vineberries, 3 Smoke Puffs, 3 Gelbe Pilze | 1 | Ashlands |
+
+Sugar Free kommt ohne Honig aus, schließlich ist es zuckerfrei.
 
 Alle Werte, Rezepte und Stationen lassen sich in der Config ändern (siehe [Konfiguration](#konfiguration)).
 
@@ -105,7 +107,7 @@ Die Abschnitte `[SugarFree]`, `[Classic]`, `[Skyr]` und `[XXL]` haben jeweils di
 | `JumpStaminaReductionPercent` | Weniger Ausdauerverbrauch beim Springen in % |
 | `CarryWeightBonus` | Zusätzliche Tragkraft |
 | `CraftingStation` | Herstellungsort, Standard `Cauldron`, z. B. auch `Workbench` oder `Forge` |
-| `Ingredients` | Zutaten als `Prefab:Anzahl`, durch Kommas getrennt, z. B. `Honey:1,Raspberry:3` |
+| `Ingredients` | Zutaten als `Prefab:Anzahl`, durch Kommas getrennt, z. B. `Blueberries:3,Thistle:1`. Unbekannte Namen landen als Warnung im Log |
 | `Amount` | Drinks pro Herstellung |
 
 Für den Zuckercrash gibt es den Abschnitt `[SugarCrash]` mit `Enabled`, `DurationSeconds`, `StaminaRegenPenaltyPercent` und `MoveSpeedPenaltyPercent`.
