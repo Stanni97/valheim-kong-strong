@@ -180,8 +180,10 @@ def draw_skyr():
     ad = ImageDraw.Draw(art)
     ad.rectangle([0, 0, W, H], fill=main)
     gorilla = draw_full_face("blue")
-    gorilla = gorilla.resize((230, int(230 * gorilla.height / gorilla.width)), Image.LANCZOS)
-    art.alpha_composite(gorilla, (232, 214))
+    gw = right - left + 20
+    gorilla = gorilla.resize((gw, int(gw * gorilla.height / gorilla.width)), Image.LANCZOS)
+    # centred on the bottle, in the blue part below the band (the mane may touch the edges)
+    art.alpha_composite(gorilla, ((left + right - gorilla.width) // 2, 336 - gorilla.height // 2))
     ad.rectangle([0, 0, W, 205], fill=(246, 246, 240))                      # white shoulder
     font = ImageFont.truetype(FONT_HEAVY, 74)
     tb = ad.textbbox((0, 0), "SKYR", font=font)
