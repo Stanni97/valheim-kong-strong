@@ -1,30 +1,35 @@
 """Draws the item icons for all Kong Strong variants.
 
-Usage: python3 make_icons.py OUT_DIR [SIZE] [FONT.ttf]
+Usage: python3 make_icons.py OUT_DIR [SIZE]
   Writes sugarfree.png, classic.png, skyr.png, xxl.png and crash.png.
   SIZE defaults to 128 (item icons); Thunderstore wants 256.
-  FONT should be a heavy sans, defaults to Noto Sans Black.
 
-Everything is drawn from simple shapes; the gorilla is an own stylised drawing.
+Fonts: set KONG_FONT_HEAVY (heavy sans) and KONG_FONT_SLAB (bold slab/serif) to
+override the default Noto Sans Black and DejaVu Serif Bold paths.
+
+Everything is drawn from simple shapes; the gorilla (gorilla.py) is an own drawing.
 """
-import math
 import os
 import sys
 from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont, ImageOps
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from gorilla import GH, GW, draw_full_face, draw_half_face  # noqa: E402
+
 OUT_DIR = sys.argv[1]
 SIZE = int(sys.argv[2]) if len(sys.argv) > 2 else 128
-FONT = sys.argv[3] if len(sys.argv) > 3 else "/usr/share/fonts/noto/NotoSans-Black.ttf"
+FONT_HEAVY = os.environ.get("KONG_FONT_HEAVY", "/usr/share/fonts/noto/NotoSans-Black.ttf")
+FONT_SLAB = os.environ.get("KONG_FONT_SLAB", "/usr/share/fonts/TTF/DejaVuSerif-Bold.ttf")
 
 W = H = 512                # drawn at 512 and downscaled for anti-aliasing
 
-BLACK = (18, 20, 26)
-SILVER_DARK, SILVER_LIGHT = (96, 102, 116), (238, 242, 248)
+BLACK = (16, 18, 24)
+SILVER_DARK = (96, 102, 116)
 
 PALETTES = {
-    # main colour, darker shade for the gorilla, light accent for the eye/outline
-    "blue": ((30, 132, 214), (8, 58, 120), (150, 210, 255)),
-    "red": ((226, 52, 40), (110, 14, 10), (255, 170, 150)),
+    # panel colour, deep shade for text shadows
+    "blue": ((30, 132, 214), (8, 52, 120)),
+    "red": ((226, 52, 40), (110, 14, 10)),
 }
 
 
@@ -49,7 +54,6 @@ def shade_cylinder(layer, left, right, strength=0.55):
     rgb = ImageChops.multiply(layer.convert("RGB"), shade)
     out = Image.merge("RGBA", (*rgb.split(), layer.getchannel("A")))
 
-    # thin specular stripe
     spec = new_layer()
     sx = left + int((right - left) * 0.3)
     ImageDraw.Draw(spec).rectangle([sx, 0, sx + (right - left) // 14, H], fill=(255, 255, 255, 70))
@@ -59,91 +63,110 @@ def shade_cylinder(layer, left, right, strength=0.55):
     return out
 
 
-def vertical_text(text, height, fill, outline, stroke):
-    """Renders text rotated so it reads bottom-to-top, scaled to the given height."""
-    font = ImageFont.truetype(FONT, 200)
+def metallic_text(text, outline, shadow, size=220, stroke=16):
+    """Silver lettering with a coloured outline and an offset shadow, like the can."""
+    font = ImageFont.truetype(FONT_HEAVY, size)
     probe = ImageDraw.Draw(Image.new("L", (1, 1)))
     box = probe.textbbox((0, 0), text, font=font, stroke_width=stroke)
-    img = Image.new("RGBA", (box[2] - box[0] + 4, box[3] - box[1] + 4), (0, 0, 0, 0))
-    ImageDraw.Draw(img).text((-box[0] + 2, -box[1] + 2), text, font=font, fill=fill,
-                             stroke_width=stroke, stroke_fill=outline)
-    img = img.rotate(90, expand=True)
-    scale = height / img.height
-    return img.resize((max(1, int(img.width * scale)), height), Image.LANCZOS)
+    off = stroke // 2 + 2
+    w, h = box[2] - box[0] + off + 8, box[3] - box[1] + off + 8
+    origin = (-box[0] + 4, -box[1] + 4)
+
+    def mask(stroke_width, shift=(0, 0)):
+        m = Image.new("L", (w, h), 0)
+        ImageDraw.Draw(m).text((origin[0] + shift[0], origin[1] + shift[1]), text, font=font, fill=255,
+                               stroke_width=stroke_width, stroke_fill=255)
+        return m
+
+    out = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    out.paste(Image.new("RGBA", (w, h), shadow + (255,)), (0, 0), mask(stroke, (off, off)))
+    out.paste(Image.new("RGBA", (w, h), outline + (255,)), (0, 0), mask(stroke))
+
+    # silver gradient across the letter height
+    grad = Image.new("RGBA", (w, h))
+    gd = ImageDraw.Draw(grad)
+    stops = ((0.0, (252, 253, 255)), (0.42, (206, 214, 226)), (0.52, (244, 247, 252)), (1.0, (168, 178, 194)))
+    top, bottom = origin[1] + (box[1] - box[1]), h - off - 4
+    for y in range(h):
+        t = min(1.0, max(0.0, (y - top) / max(1, bottom - top)))
+        for (t0, c0), (t1, c1) in zip(stops, stops[1:]):
+            if t0 <= t <= t1:
+                gd.line([(0, y), (w, y)], fill=lerp(c0, c1, (t - t0) / (t1 - t0)) + (255,))
+                break
+    out.paste(grad, (0, 0), mask(0))
+    return out
 
 
-def draw_gorilla(d, cx, cy, s, fur, accent):
-    """Half a gorilla face looking right, cut off by whatever is drawn over its right side."""
-    def p(x, y):
-        return (cx + x * s, cy + y * s)
-
-    # shaggy head silhouette
-    head = [p(0.9, -1.25), p(0.1, -1.3), p(-0.45, -1.05), p(-0.8, -1.15), p(-0.75, -0.75),
-            p(-1.05, -0.6), p(-0.85, -0.3), p(-1.1, -0.05), p(-0.8, 0.2), p(-1.0, 0.5),
-            p(-0.6, 0.65), p(-0.55, 1.0), p(-0.1, 0.95), p(0.3, 1.25), p(0.9, 1.25)]
-    d.polygon(head, fill=fur)
-    # face plate
-    d.polygon([p(0.9, -0.55), p(0.15, -0.6), p(-0.3, -0.3), p(-0.35, 0.25), p(-0.1, 0.75),
-               p(0.4, 0.95), p(0.9, 0.95)], fill=lerp(fur, accent, 0.25))
-    # heavy brow
-    d.polygon([p(-0.45, -0.45), p(0.15, -0.72), p(0.9, -0.62), p(0.9, -0.38), p(0.2, -0.42),
-               p(-0.3, -0.22)], fill=lerp(fur, (0, 0, 0), 0.45))
-    # angry eye
-    d.polygon([p(-0.05, -0.3), p(0.55, -0.36), p(0.45, -0.12), p(0.05, -0.12)], fill=accent)
-    d.ellipse([p(0.22, -0.3), p(0.4, -0.14)], fill=(10, 10, 14))
-    # nose and mouth
-    d.ellipse([p(0.35, 0.15), p(0.62, 0.32)], fill=lerp(fur, (0, 0, 0), 0.5))
-    d.line([p(0.0, 0.62), p(0.45, 0.72), p(0.9, 0.66)], fill=lerp(fur, (0, 0, 0), 0.5),
-           width=max(2, int(s * 0.08)))
+def fit(img, max_w, max_h):
+    scale = min(max_w / img.width, max_h / img.height)
+    return img.resize((max(1, int(img.width * scale)), max(1, int(img.height * scale))), Image.LANCZOS)
 
 
-def finish(layer):
-    """Dark outline and soft drop shadow, like vanilla Valheim icons."""
-    alpha = layer.getchannel("A")
-    outline = alpha.filter(ImageFilter.MaxFilter(13))
-    shadow = alpha.filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.GaussianBlur(10))
-    out = new_layer()
-    out.paste(Image.new("RGBA", (W, H), (0, 0, 0, 150)), (10, 12), shadow)
-    out.paste(Image.new("RGBA", (W, H), (12, 10, 8, 255)), (0, 0), outline)
-    out.alpha_composite(layer)
-    return out.resize((SIZE, SIZE), Image.LANCZOS)
+def slab_text(d, xy, text, size, fill, stroke=0, stroke_fill=None, anchor="la", max_w=None):
+    """Slab lettering; shrinks the font until the text fits into max_w."""
+    font = ImageFont.truetype(FONT_SLAB, size)
+    while max_w and size > 6:
+        box = d.textbbox((0, 0), text, font=font, stroke_width=stroke)
+        if box[2] - box[0] <= max_w:
+            break
+        size -= 1
+        font = ImageFont.truetype(FONT_SLAB, size)
+    d.text(xy, text, font=font, fill=fill, stroke_width=stroke, stroke_fill=stroke_fill, anchor=anchor)
 
 
-def draw_can(palette_name):
-    main, dark, accent = PALETTES[palette_name]
-    left, right, top, bottom, lid = 168, 344, 28, 482, 30
-    split = left + int((right - left) * 0.46)
-
-    body = new_layer()
-    d = ImageDraw.Draw(body)
-    mask = Image.new("L", (W, H), 0)
-    md = ImageDraw.Draw(mask)
-    md.rectangle([left, top + lid // 2, right, bottom - lid // 2], fill=255)
-    md.ellipse([left, bottom - lid, right, bottom], fill=255)
+def draw_can(palette, label):
+    main, deep = PALETTES[palette]
+    left, right, top, bottom, lid = 166, 346, 22, 490, 30
+    split = left + int((right - left) * 0.48)
 
     art = new_layer()
     ad = ImageDraw.Draw(art)
     ad.rectangle([left, top, split, bottom], fill=main)
-    draw_gorilla(ad, split - 50, 300, 56, dark, accent)
-    ad.rectangle([split, top, right, bottom], fill=BLACK)
-    word = vertical_text("KONG", 340, (240, 244, 250), main, 10)
-    art.alpha_composite(word, (split + (right - split - word.width) // 2 + 4, 100))
-    body.paste(art, (0, 0), mask)
 
+    # big gorilla, its face centre on the split like on the real can
+    gw = int((split - left) * 1.5)
+    gorilla = draw_half_face(palette).resize((gw, int(gw * GH / GW)), Image.LANCZOS)
+    art.alpha_composite(gorilla, (split - gw, int(top + (bottom - top) * 0.6 - gorilla.height / 2)))
+
+    # variety label top left
+    lines = label.split("\n")
+    for i, line in enumerate(lines):
+        slab_text(ad, (left + 10, top + 34 + i * 22), line, 22, lerp(main, (255, 255, 255), 0.55), 3, BLACK,
+                  max_w=split - left - 14)
+    slab_text(ad, (left + 10, top + 38 + len(lines) * 22), "ENERGY DRINK", 13, BLACK, max_w=split - left - 14)
+
+    # black panel with KONG / STRONG / WILD POWER
+    ad.rectangle([split, top, right, bottom], fill=BLACK)
+    panel = right - split
+    kong = metallic_text("KONG", main, deep).rotate(90, expand=True)
+    kong = kong.resize((int(panel * 0.7), int((bottom - top) * 0.76)), Image.LANCZOS)
+    art.alpha_composite(kong, (split + 3, top + 34))
+    strong = metallic_text("STRONG", main, deep, size=160, stroke=14).rotate(90, expand=True)
+    strong = strong.resize((int(panel * 0.26), int((bottom - top) * 0.5)), Image.LANCZOS)
+    art.alpha_composite(strong, (split + 3 + kong.width, top + 34))
+    slab_text(ad, ((split + right) // 2 + 1, bottom - 30), "WILD POWER", 18, main, anchor="mm",
+              max_w=panel - 12)
+
+    can_mask = Image.new("L", (W, H), 0)
+    md = ImageDraw.Draw(can_mask)
+    md.rectangle([left, top + lid // 2, right, bottom - lid // 2], fill=255)
+    md.ellipse([left, bottom - lid, right, bottom], fill=255)
+    body = new_layer()
+    body.paste(art, (0, 0), can_mask)
     body = shade_cylinder(body, left, right)
+
     d = ImageDraw.Draw(body)
-    # silver lid and bottom rim
     d.ellipse([left, top, right, top + lid], fill=(205, 210, 220, 255), outline=SILVER_DARK, width=5)
     d.ellipse([left + 16, top + 5, right - 16, top + lid - 5], fill=(160, 166, 178, 255))
-    d.rounded_rectangle([left + 74, top + 8, left + 122, top + 21], radius=6,
+    d.rounded_rectangle([left + 66, top + 8, left + 114, top + 21], radius=6,
                         fill=(220, 224, 232, 255), outline=SILVER_DARK, width=3)
     d.arc([left, bottom - lid, right, bottom], 0, 180, fill=(170, 176, 188, 255), width=8)
     return body
 
 
 def draw_skyr():
-    """Milky protein drink bottle with a blue sleeve."""
-    main, dark, accent = (70, 140, 214), (14, 52, 104), (200, 228, 255)
+    """Milky protein drink bottle with a blue sleeve and the gorilla face."""
+    main, dark = (70, 140, 214), (14, 52, 104)
     left, right = 150, 362
     layer = new_layer()
     mask = Image.new("L", (W, H), 0)
@@ -156,12 +179,13 @@ def draw_skyr():
     art = new_layer()
     ad = ImageDraw.Draw(art)
     ad.rectangle([0, 0, W, H], fill=main)
+    gorilla = draw_full_face("blue")
+    gorilla = gorilla.resize((230, int(230 * gorilla.height / gorilla.width)), Image.LANCZOS)
+    art.alpha_composite(gorilla, (232, 214))
     ad.rectangle([0, 0, W, 205], fill=(246, 246, 240))                      # white shoulder
-    draw_gorilla(ad, 300, 340, 92, dark, accent)
-    font = ImageFont.truetype(FONT, 74)
+    font = ImageFont.truetype(FONT_HEAVY, 74)
     tb = ad.textbbox((0, 0), "SKYR", font=font)
-    ad.text((256 - (tb[2] + tb[0]) // 2, 150 - (tb[3] + tb[1]) // 2), "SKYR", font=font,
-            fill=(16, 22, 34))
+    ad.text((256 - (tb[2] + tb[0]) // 2, 150 - (tb[3] + tb[1]) // 2), "SKYR", font=font, fill=(16, 22, 34))
     ad.rectangle([0, 205, W, 222], fill=dark)
     layer.paste(art, (0, 0), mask)
     layer = shade_cylinder(layer, left, right, 0.45)
@@ -176,7 +200,7 @@ def draw_skyr():
 
 def draw_xxl():
     """18.9 litre canister: yellow drink, handle, blue/black label."""
-    main, dark, accent = PALETTES["blue"]
+    main, deep = PALETTES["blue"]
     left, right, top, bottom = 96, 416, 120, 480
     layer = new_layer()
     d = ImageDraw.Draw(layer)
@@ -193,19 +217,25 @@ def draw_xxl():
         bx = left + 30 + (i * 53) % (right - left - 60)
         by = top + 30 + (i * 37) % 80
         jd.ellipse([bx, by, bx + 10, by + 10], fill=(255, 226, 140, 255))
-    # label
+
+    # label: blue part with the gorilla, black part with the lettering
     lt, lb = top + 120, bottom - 30
     lsplit = left + 120
-    jd.rectangle([left + 12, lt, lsplit, lb], fill=main)
+    label = new_layer()
+    ld = ImageDraw.Draw(label)
+    ld.rectangle([left + 12, lt, lsplit, lb], fill=main)
+    gw = int((lsplit - left - 12) * 1.35)
+    gorilla = draw_half_face("blue").resize((gw, int(gw * GH / GW)), Image.LANCZOS)
+    label.alpha_composite(gorilla, (lsplit - gw, (lt + lb) // 2 - gorilla.height // 2 + 10))
+    clip = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(clip).rectangle([left + 12, lt, lsplit, lb], fill=255)
+    jug.paste(label, (0, 0), ImageChops.multiply(clip, label.getchannel("A")))
+
     jd.rectangle([lsplit, lt, right - 12, lb], fill=BLACK)
-    draw_gorilla(jd, lsplit - 50, (lt + lb) // 2 + 10, 56, dark, accent)
-    jd.rectangle([lsplit, lt, right - 12, lb], fill=BLACK)
-    font = ImageFont.truetype(FONT, 66)
-    tb = jd.textbbox((0, 0), "KONG", font=font, stroke_width=6)
-    jd.text((lsplit + (right - 12 - lsplit - (tb[2] - tb[0])) // 2 - tb[0], (lt + lb) // 2 - (tb[3] + tb[1]) // 2),
-            "KONG", font=font, fill=(240, 244, 250), stroke_width=6, stroke_fill=main)
-    xb = jd.textbbox((0, 0), "XXL", font=ImageFont.truetype(FONT, 46))
-    jd.text((right - 24 - xb[2], lb - 8 - xb[3]), "XXL", font=ImageFont.truetype(FONT, 46),
+    kong = fit(metallic_text("KONG", main, deep), right - 12 - lsplit - 24, (lb - lt) * 0.55)
+    jug.alpha_composite(kong, (lsplit + (right - 12 - lsplit - kong.width) // 2, lt + 14))
+    xb = jd.textbbox((0, 0), "XXL", font=ImageFont.truetype(FONT_HEAVY, 46))
+    jd.text((right - 24 - xb[2], lb - 8 - xb[3]), "XXL", font=ImageFont.truetype(FONT_HEAVY, 46),
             fill=(255, 214, 0))
     jug = shade_cylinder(jug, left, right, 0.4)
     layer.alpha_composite(jug)
@@ -214,19 +244,33 @@ def draw_xxl():
 
 def draw_crash():
     """Empty grey can lying on its side, used for the sugar crash debuff."""
-    can = ImageOps.grayscale(draw_can("red").convert("RGB"))
-    can = Image.merge("RGBA", (can, can, can, draw_can("red").getchannel("A")))
+    red = draw_can("red", "URBAN\nCLASSIC")
+    grey = ImageOps.grayscale(red.convert("RGB"))
+    can = Image.merge("RGBA", (grey, grey, grey, red.getchannel("A")))
     can = can.rotate(-75, resample=Image.BICUBIC, center=(256, 256))
     d = ImageDraw.Draw(can)
-    font = ImageFont.truetype(FONT, 70)
-    d.text((300, 40), "z", font=font, fill=(235, 235, 245, 255), stroke_width=6, stroke_fill=(30, 30, 40))
-    d.text((360, 0), "z", font=ImageFont.truetype(FONT, 50), fill=(235, 235, 245, 255),
+    d.text((300, 40), "z", font=ImageFont.truetype(FONT_HEAVY, 70), fill=(235, 235, 245, 255),
+           stroke_width=6, stroke_fill=(30, 30, 40))
+    d.text((360, 0), "z", font=ImageFont.truetype(FONT_HEAVY, 50), fill=(235, 235, 245, 255),
            stroke_width=5, stroke_fill=(30, 30, 40))
     return can
 
 
+def finish(layer):
+    """Dark outline and soft drop shadow, like vanilla Valheim icons."""
+    alpha = layer.getchannel("A")
+    outline = alpha.filter(ImageFilter.MaxFilter(13))
+    shadow = alpha.filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.GaussianBlur(10))
+    out = new_layer()
+    out.paste(Image.new("RGBA", (W, H), (0, 0, 0, 150)), (10, 12), shadow)
+    out.paste(Image.new("RGBA", (W, H), (12, 10, 8, 255)), (0, 0), outline)
+    out.alpha_composite(layer)
+    return out.resize((SIZE, SIZE), Image.LANCZOS)
+
+
 os.makedirs(OUT_DIR, exist_ok=True)
-for name, layer in (("sugarfree", draw_can("blue")), ("classic", draw_can("red")),
+for name, layer in (("sugarfree", draw_can("blue", "SUGAR\nFREE")),
+                    ("classic", draw_can("red", "URBAN\nCLASSIC")),
                     ("skyr", draw_skyr()), ("xxl", draw_xxl()), ("crash", draw_crash())):
     path = os.path.join(OUT_DIR, f"{name}.png")
     finish(layer).save(path)

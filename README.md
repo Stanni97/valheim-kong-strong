@@ -137,7 +137,7 @@ Das automatische Kopieren ins Spiel schaltest du mit `-p:InstallToGame=false` ab
 
 Bei einer neuen Version die Versionsnummer an zwei Stellen erhöhen: `<Version>` in `KongStrong.csproj` und `PluginVersion` in `src/KongStrongPlugin.cs`.
 
-Die Icons erzeugt `tools/make_icons.py` (Python 3 mit Pillow):
+Die Icons erzeugt `tools/make_icons.py` (Python 3 mit Pillow), der Gorilla kommt aus `tools/gorilla.py`. Als Schriften dienen standardmäßig Noto Sans Black und DejaVu Serif Bold. Andere Pfade setzt du über die Umgebungsvariablen `KONG_FONT_HEAVY` und `KONG_FONT_SLAB`.
 
 ```bash
 python3 tools/make_icons.py Assets 128
