@@ -1,11 +1,6 @@
 # Kong Strong Energy für Valheim
 
-<p>
-  <img src="Assets/sugarfree.png" width="96" alt="Sugar Free">
-  <img src="Assets/classic.png" width="96" alt="Urban Classic">
-  <img src="Assets/skyr.png" width="96" alt="Skyr Energy">
-  <img src="Assets/xxl.png" width="96" alt="XXL-Kanister">
-</p>
+![Sugar Free](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/sugarfree.png) ![Urban Classic](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/classic.png) ![Skyr Energy](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/skyr.png) ![XXL-Kanister](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/xxl.png)
 
 Ein Valheim-Mod mit vier Energydrinks im Stil von Kong Strong: Sie geben dir mehr Ausdauer, mehr Tempo und mit Skyr sogar mehr Tragkraft.
 
@@ -159,4 +154,4 @@ Dies ist ein inoffizieller Fan-Mod ohne Verbindung zu Lidl, Milbona oder der Mar
 
 ## Lizenz
 
-Code und Icons stehen unter der [MIT-Lizenz](LICENSE). Rechte an den Marken Kong Strong, Milbona und Lidl verleiht die Lizenz nicht, die bleiben bei ihren Inhabern.
+Code und Icons stehen unter der [MIT-Lizenz](https://github.com/Stanni97/valheim-kong-strong/blob/main/LICENSE). Rechte an den Marken Kong Strong, Milbona und Lidl verleiht die Lizenz nicht, die bleiben bei ihren Inhabern.
