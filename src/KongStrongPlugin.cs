@@ -235,18 +235,7 @@ namespace KongStrong
                 }
             });
 
-            Try("the power effect", () =>
-            {
-                // Visuals of Eikthyr's power, without its sound.
-                StatusEffect eikthyr = PrefabManager.Cache.GetPrefab<StatusEffect>("GP_Eikthyr");
-                EffectList.EffectData[] visuals = eikthyr?.m_startEffects?.m_effectPrefabs?
-                    .Where(e => e.m_prefab != null && e.m_prefab.GetComponentInChildren<ZSFX>(true) == null).ToArray();
-                if (visuals != null && visuals.Length > 0)
-                {
-                    SE_Kong.PowerEffects = new EffectList { m_effectPrefabs = visuals };
-                    Logger.LogInfo("Power effect: " + string.Join(", ", visuals.Select(v => v.m_prefab.name)));
-                }
-            });
+            Try("the power effect", AddPowerEffect);
 
             Try(EmptyPrefab, AddEmpty);
 
@@ -300,6 +289,57 @@ namespace KongStrong
             if (_customModels)
             {
                 Visuals.ApplyItem(item.ItemPrefab, MeshFor(model), Visuals.ItemMaterial(texture, metallic, smoothness), glow);
+            }
+        }
+
+        /// <summary>The visual part of Eikthyr's power effect; effects containing a sound are copied without it.</summary>
+        private void AddPowerEffect()
+        {
+            StatusEffect eikthyr = PrefabManager.Cache.GetPrefab<StatusEffect>("GP_Eikthyr")
+                                   ?? ObjectDB.instance?.GetStatusEffect("GP_Eikthyr".GetStableHashCode());
+            if (eikthyr == null)
+            {
+                Logger.LogWarning("GP_Eikthyr not found, drinking plays the power animation without the glow.");
+                return;
+            }
+
+            var visuals = new List<EffectList.EffectData>();
+            foreach (EffectList.EffectData data in eikthyr.m_startEffects?.m_effectPrefabs ?? new EffectList.EffectData[0])
+            {
+                if (data?.m_prefab == null || data.m_prefab.GetComponent<ZSFX>() != null)
+                {
+                    continue;                                   // a pure sound
+                }
+
+                GameObject prefab = data.m_prefab;
+                if (prefab.GetComponentInChildren<ZSFX>(true) != null || prefab.GetComponentInChildren<AudioSource>(true) != null)
+                {
+                    prefab = PrefabManager.Instance.CreateClonedPrefab("kong_" + data.m_prefab.name, data.m_prefab);
+                    foreach (ZSFX sfx in prefab.GetComponentsInChildren<ZSFX>(true))
+                    {
+                        DestroyImmediate(sfx);
+                    }
+
+                    foreach (AudioSource audio in prefab.GetComponentsInChildren<AudioSource>(true))
+                    {
+                        DestroyImmediate(audio);
+                    }
+                }
+
+                visuals.Add(new EffectList.EffectData
+                {
+                    m_prefab = prefab, m_enabled = data.m_enabled, m_variant = data.m_variant, m_attach = data.m_attach,
+                    m_follow = data.m_follow, m_inheritParentRotation = data.m_inheritParentRotation,
+                    m_inheritParentScale = data.m_inheritParentScale, m_multiplyParentVisualScale = data.m_multiplyParentVisualScale,
+                    m_randomRotation = data.m_randomRotation, m_scale = data.m_scale, m_childTransform = data.m_childTransform,
+                });
+            }
+
+            Logger.LogInfo($"Power effect from GP_Eikthyr: {string.Join(", ", visuals.Select(v => v.m_prefab.name))} " +
+                           $"(of {eikthyr.m_startEffects?.m_effectPrefabs?.Length ?? 0} effects)");
+            if (visuals.Count > 0)
+            {
+                SE_Kong.PowerEffects = new EffectList { m_effectPrefabs = visuals.ToArray() };
             }
         }
 
