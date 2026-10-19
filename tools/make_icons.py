@@ -30,6 +30,9 @@ PALETTES = {
     # panel colour, deep shade for text shadows
     "blue": ((30, 132, 214), (8, 52, 120)),
     "red": ((226, 52, 40), (110, 14, 10)),
+    "ice": ((150, 214, 245), (24, 84, 130)),
+    "green": ((80, 200, 64), (16, 80, 18)),
+    "purple": ((150, 84, 222), (56, 18, 104)),
 }
 
 
@@ -258,6 +261,109 @@ def draw_crash():
     return can
 
 
+def grey(layer):
+    g = ImageOps.grayscale(layer.convert("RGB"))
+    return Image.merge("RGBA", (g, g, g, layer.getchannel("A")))
+
+
+def draw_empty():
+    """Crushed, empty grey can: the Leergut."""
+    can = grey(draw_can("blue", "SUGAR\nFREE"))
+    can = can.resize((W, int(H * 0.62)), Image.LANCZOS)
+    out = new_layer()
+    out.alpha_composite(can, (0, (H - can.height) // 2 + 40))
+    d = ImageDraw.Draw(out)
+    for y in (215, 268, 318):                                               # dents
+        d.line([(170, y), (240, y + 10), (300, y - 6), (344, y + 6)], fill=(70, 70, 76, 255), width=7)
+    return out.rotate(28, resample=Image.BICUBIC, center=(256, 256))
+
+
+def draw_cup():
+    """Skyr cup with foil lid and the gorilla."""
+    main, dark = (70, 140, 214), (14, 52, 104)
+    top, bottom = 150, 440
+    layer = new_layer()
+    mask = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(mask).polygon([(120, top), (392, top), (352, bottom), (160, bottom)], fill=255)
+    art = new_layer()
+    ad = ImageDraw.Draw(art)
+    ad.rectangle([0, 0, W, H], fill=(246, 246, 240))
+    ad.rectangle([0, 270, W, H], fill=main)
+    gorilla = draw_full_face("blue")
+    gorilla = gorilla.resize((180, int(180 * gorilla.height / gorilla.width)), Image.LANCZOS)
+    art.alpha_composite(gorilla, (256 - 90, 356 - gorilla.height // 2))
+    font = ImageFont.truetype(FONT_HEAVY, 64)
+    tb = ad.textbbox((0, 0), "SKYR", font=font)
+    ad.text((256 - (tb[2] + tb[0]) // 2, 212 - (tb[3] + tb[1]) // 2), "SKYR", font=font, fill=(16, 22, 34))
+    ad.rectangle([0, 262, W, 274], fill=dark)
+    layer.paste(art, (0, 0), mask)
+    layer = shade_cylinder(layer, 120, 392, 0.4)
+    d = ImageDraw.Draw(layer)
+    d.ellipse([110, top - 26, 402, top + 26], fill=(214, 220, 230, 255), outline=(120, 126, 140, 255), width=5)
+    d.ellipse([150, top - 14, 362, top + 14], fill=(236, 240, 246, 255))
+    return layer
+
+
+def draw_bottle(label_main, label_text, glass=(150, 84, 22)):
+    """Mead style bottle with a Kong label."""
+    main, deep = PALETTES[label_main]
+    layer = new_layer()
+    mask = Image.new("L", (W, H), 0)
+    md = ImageDraw.Draw(mask)
+    md.rounded_rectangle([214, 40, 298, 170], radius=14, fill=255)          # neck
+    md.ellipse([146, 130, 366, 260], fill=255)                              # shoulder
+    md.rounded_rectangle([146, 190, 366, 476], radius=40, fill=255)         # body
+    art = new_layer()
+    ad = ImageDraw.Draw(art)
+    ad.rectangle([0, 0, W, H], fill=glass)
+    split = 250
+    ad.rectangle([146, 250, split, 430], fill=main)
+    gorilla = draw_half_face(label_main).resize((140, int(140 * GH / GW)), Image.LANCZOS)
+    clip = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(clip).rectangle([146, 250, split, 430], fill=255)
+    tmp = new_layer()
+    tmp.alpha_composite(gorilla, (split - 140, 340 - gorilla.height // 2))
+    art.paste(tmp, (0, 0), ImageChops.multiply(clip, tmp.getchannel("A")))
+    ad.rectangle([split, 250, 366, 430], fill=BLACK)
+    word = fit(metallic_text(label_text, main, deep).rotate(90, expand=True), 366 - split - 12, 170)
+    art.alpha_composite(word, (split + (366 - split - word.width) // 2, 255))
+    layer.paste(art, (0, 0), mask)
+    layer = shade_cylinder(layer, 146, 366, 0.5)
+    d = ImageDraw.Draw(layer)
+    d.rounded_rectangle([206, 22, 306, 62], radius=8, fill=(120, 78, 40, 255), outline=(60, 36, 16, 255), width=4)
+    return layer
+
+
+def draw_barrel():
+    """Small wooden keg with a Kong label: the fermenter base of the mead bomb."""
+    main, deep = PALETTES["blue"]
+    layer = new_layer()
+    d = ImageDraw.Draw(layer)
+    d.rounded_rectangle([120, 90, 392, 460], radius=90, fill=(150, 96, 50, 255))
+    for x in range(150, 392, 44):
+        d.line([x, 100, x, 450], fill=(110, 66, 30, 255), width=6)
+    for y in (140, 410):
+        d.rectangle([116, y - 14, 396, y + 14], fill=(90, 90, 100, 255))
+    d.rectangle([150, 210, 362, 340], fill=BLACK)
+    d.rectangle([150, 210, 230, 340], fill=main)
+    kong = fit(metallic_text("KONG", main, deep), 362 - 236, 110)
+    layer.alpha_composite(kong, (236 + (126 - kong.width) // 2, 275 - kong.height // 2))
+    return shade_cylinder(layer, 120, 392, 0.45)
+
+
+def draw_heart():
+    """Red heart with a pulse line: heart racing."""
+    layer = new_layer()
+    d = ImageDraw.Draw(layer)
+    d.ellipse([86, 110, 266, 290], fill=(214, 30, 40, 255))
+    d.ellipse([246, 110, 426, 290], fill=(214, 30, 40, 255))
+    d.polygon([(96, 230), (416, 230), (256, 440)], fill=(214, 30, 40, 255))
+    d.ellipse([130, 140, 200, 200], fill=(255, 120, 120, 255))
+    d.line([(60, 270), (170, 270), (205, 190), (250, 350), (290, 220), (320, 270), (452, 270)],
+           fill=(255, 255, 255, 255), width=22, joint="curve")
+    return layer
+
+
 def finish(layer):
     """Dark outline and soft drop shadow, like vanilla Valheim icons."""
     alpha = layer.getchannel("A")
@@ -273,7 +379,13 @@ def finish(layer):
 os.makedirs(OUT_DIR, exist_ok=True)
 for name, layer in (("sugarfree", draw_can("blue", "SUGAR\nFREE")),
                     ("classic", draw_can("red", "URBAN\nCLASSIC")),
-                    ("skyr", draw_skyr()), ("xxl", draw_xxl()), ("crash", draw_crash())):
+                    ("skyr", draw_skyr()), ("xxl", draw_xxl()), ("crash", draw_crash()),
+                    ("frost", draw_can("ice", "FROST\nEDITION")),
+                    ("toxic", draw_can("green", "TOXIC\nEDITION")),
+                    ("eitr", draw_can("purple", "EITR\nEDITION")),
+                    ("empty", draw_empty()), ("skyrcup", draw_cup()),
+                    ("metbombe", draw_bottle("blue", "MET")), ("metbombe_base", draw_barrel()),
+                    ("heartracing", draw_heart())):
     path = os.path.join(OUT_DIR, f"{name}.png")
     finish(layer).save(path)
     print("wrote", path)

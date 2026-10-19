@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using BepInEx;
+using HarmonyLib;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
@@ -20,10 +19,14 @@ namespace KongStrong
         public const string PluginGUID = "felix.kongstrong";
         public const string PluginName = "Kong Strong Energy";
         // Keep in sync with <Version> in KongStrong.csproj.
-        public const string PluginVersion = "1.1.0";
+        public const string PluginVersion = "1.2.0";
 
-        // Shared by all drinks and the crash, so only one of them can be active at a time.
+        // Shared by all drinks, the crash and heart racing, so only one of them can be active at a time.
         private const string StatusCategory = "kongstrong";
+        private const string EmptyPrefab = "KongLeergut";
+
+        private static readonly HashSet<string> ReturnsEmpty = new HashSet<string>();
+        private static bool _emptiesEnabled = true;
 
         private readonly Drink[] _drinks =
         {
@@ -33,6 +36,7 @@ namespace KongStrong
                 Duration = 300f, InstantStamina = 40f, StaminaRegenBonus = 50, SpeedBonus = 10,
                 RunStaminaReduction = 25, JumpStaminaReduction = 25,
                 Ingredients = "Blueberries:3,Thistle:1,MushroomYellow:1", Amount = 2,
+                Previous = { ["Ingredients"] = new[] { "Honey:1,Raspberry:3" }, ["CraftingStation"] = new[] { "Workbench" } },
             },
             new Drink
             {
@@ -40,6 +44,7 @@ namespace KongStrong
                 Duration = 180f, InstantStamina = 80f, StaminaRegenBonus = 75, SpeedBonus = 15,
                 RunStaminaReduction = 25, JumpStaminaReduction = 25,
                 Ingredients = "Honey:2,Raspberry:3,Bloodbag:1,MushroomYellow:1", Amount = 2,
+                Previous = { ["Ingredients"] = new[] { "Honey:2,Raspberry:3" }, ["CraftingStation"] = new[] { "Workbench" } },
             },
             new Drink
             {
@@ -48,22 +53,71 @@ namespace KongStrong
                 Duration = 600f, InstantStamina = 20f, StaminaRegenBonus = 25, HealthRegenBonus = 25,
                 CarryWeightBonus = 50f,
                 Ingredients = "ChickenEgg:1,Honey:1,Blueberries:2", Amount = 2,
+                Previous = { ["Ingredients"] = new[] { "Honey:1,Blueberries:3,DeerMeat:1" } },
             },
             new Drink
             {
                 Key = "XXL", PrefabName = "KongStrongXXL",
                 BasePrefabs = new[] { "MeadStaminaMedium", "MeadStaminaMinor" },
-                Weight = 19f, StackSize = 1, ModelScale = 1.8f, FireResistance = HitData.DamageModifier.Resistant,
+                Weight = 19f, StackSize = 1, ModelScale = 1.8f, ReturnsEmpty = false,
+                FireResistance = HitData.DamageModifier.Resistant,
                 Duration = 1200f, InstantStamina = 40f, StaminaRegenBonus = 50, SpeedBonus = 10,
                 RunStaminaReduction = 25, JumpStaminaReduction = 25,
                 Ingredients = "Vineberry:6,MushroomSmokePuff:3,MushroomYellow:3", Amount = 1,
+                Previous = { ["Ingredients"] = new[] { "Honey:5,Raspberry:15" }, ["CraftingStation"] = new[] { "Workbench" } },
+            },
+            new Drink
+            {
+                Key = "Frost", PrefabName = "KongStrongFrost",
+                FrostResistance = HitData.DamageModifier.Resistant,
+                Duration = 600f, InstantStamina = 30f, StaminaRegenBonus = 25, SpeedBonus = 5,
+                RunStaminaReduction = 15, JumpStaminaReduction = 15,
+                Ingredients = "Blueberries:3,FreezeGland:1,MushroomYellow:1", Amount = 2,
+            },
+            new Drink
+            {
+                Key = "Toxic", PrefabName = "KongStrongToxic",
+                PoisonResistance = HitData.DamageModifier.Resistant,
+                Duration = 600f, InstantStamina = 30f, StaminaRegenBonus = 25, SpeedBonus = 5,
+                RunStaminaReduction = 15, JumpStaminaReduction = 15,
+                Ingredients = "Blueberries:2,Ooze:1,Thistle:1,MushroomYellow:1", Amount = 2,
+            },
+            new Drink
+            {
+                Key = "Eitr", PrefabName = "KongStrongEitr",
+                Duration = 600f, InstantStamina = 20f, InstantEitr = 25f, StaminaRegenBonus = 25, EitrRegenBonus = 50,
+                Ingredients = "Sap:1,MushroomMagecap:1,MushroomYellow:1,Blueberries:2", Amount = 2,
+            },
+            new Drink
+            {
+                Key = "MetBombe", PrefabName = "KongMetBombe", Fermented = true,
+                BasePrefabs = new[] { "MeadTasty", "MeadStaminaMinor" }, FermenterBase = "MeadBaseTasty",
+                Weight = 1f, StackSize = 10, ReturnsEmpty = false,
+                Duration = 300f, HealOverTime = 50f, StaminaRegenBonus = 50, SpeedBonus = 10,
+                RunStaminaReduction = 25, JumpStaminaReduction = 25,
+                Ingredients = "Honey:5,KongStrongSugarFree:2,Raspberry:5", Amount = 1, FermenterYield = 6,
             },
         };
+
+        private readonly SkyrCupSettings _skyrCup = new SkyrCupSettings();
 
         private bool _crashEnabled;
         private float _crashDuration;
         private int _crashRegenPenalty;
         private int _crashSpeedPenalty;
+
+        private bool _heartEnabled;
+        private float _heartDuration;
+        private int _heartHealthPenalty;
+        private int _heartStaminaPenalty;
+
+        private bool _dumpPrefabs;
+
+        /// <summary>Prefab name of the empty an item leaves behind, or null.</summary>
+        internal static string EmptyFor(string itemToken)
+        {
+            return _emptiesEnabled && ReturnsEmpty.Contains(itemToken) ? EmptyPrefab : null;
+        }
 
         private void Awake()
         {
@@ -71,6 +125,21 @@ namespace KongStrong
             {
                 drink.Bind(Config);
             }
+
+            _skyrCup.Bind(Config);
+            BindGeneral();
+
+            Texts.Register(Get, _skyrCup);
+            Harmony.CreateAndPatchAll(typeof(Patches), PluginGUID);
+            PrefabManager.OnVanillaPrefabsAvailable += AddContent;
+        }
+
+        private void BindGeneral()
+        {
+            Patches.TooAwakeToSleep = Config.Bind("General", "TooAwakeToSleep", true,
+                "Beds refuse to let you sleep while a Kong buff is active.").Value;
+            _emptiesEnabled = Config.Bind("General", "Empties", true,
+                "Drinks leave an empty (Leergut) behind, for the deposit machine and the can pyramid.").Value;
 
             _crashEnabled = Config.Bind("SugarCrash", "Enabled", true,
                 "Urban Classic is followed by a sugar crash when its buff runs out.").Value;
@@ -81,120 +150,109 @@ namespace KongStrong
             _crashSpeedPenalty = Config.Bind("SugarCrash", "MoveSpeedPenaltyPercent", 5,
                 "Slower movement during the crash, in percent.").Value;
 
-            AddLocalizations();
-            PrefabManager.OnVanillaPrefabsAvailable += AddDrinks;
+            ToleranceSettings t = SE_Kong.Tolerance;
+            t.Enabled = Config.Bind("CaffeineTolerance", "Enabled", true,
+                "Drinks taken shortly after each other work less.").Value;
+            t.WindowMinutes = Config.Bind("CaffeineTolerance", "WindowMinutes", 15f,
+                "Drinks within this many minutes count as drunk in a row.").Value;
+            t.SecondDrinkPercent = Config.Bind("CaffeineTolerance", "SecondDrinkEffectPercent", 50,
+                "Strength of the second drink in a row, in percent.").Value;
+            t.FurtherDrinkPercent = Config.Bind("CaffeineTolerance", "FurtherDrinkEffectPercent", 25,
+                "Strength of the third and every further drink in a row, in percent.").Value;
+            t.HeartRacingFromDrink = Config.Bind("CaffeineTolerance", "HeartRacingFromDrink", 3,
+                "From this drink in a row on you get heart racing. 0 turns it off.").Value;
+
+            _heartEnabled = t.HeartRacingFromDrink > 0;
+            _heartDuration = Config.Bind("HeartRacing", "DurationSeconds", 120f,
+                "How long heart racing lasts, in seconds.").Value;
+            _heartHealthPenalty = Config.Bind("HeartRacing", "HealthRegenPenaltyPercent", 50,
+                "Slower health regeneration during heart racing, in percent.").Value;
+            _heartStaminaPenalty = Config.Bind("HeartRacing", "StaminaRegenPenaltyPercent", 25,
+                "Slower stamina regeneration during heart racing, in percent.").Value;
+
+            _dumpPrefabs = Config.Bind("Debug", "DumpPrefabs", false,
+                "Logs the structure of some vanilla prefabs once at startup (development aid).").Value;
         }
 
         private Drink Get(string key) => _drinks.First(d => d.Key == key);
 
-        private static string Minutes(Drink drink) => Mathf.Max(1, Mathf.RoundToInt(drink.Duration / 60f)).ToString();
-
-        private static bool Fireproof(Drink drink) => drink.FireResistance is HitData.DamageModifier.SlightlyResistant
-            or HitData.DamageModifier.Resistant or HitData.DamageModifier.VeryResistant or HitData.DamageModifier.Immune;
-
-        private void AddLocalizations()
+        private void AddContent()
         {
-            Drink sugarFree = Get("SugarFree"), classic = Get("Classic"), skyr = Get("Skyr"), xxl = Get("XXL");
-            CustomLocalization loc = LocalizationManager.Instance.GetLocalization();
+            PrefabManager.OnVanillaPrefabsAvailable -= AddContent;
 
-            loc.AddTranslation("English", new Dictionary<string, string>
+            if (_dumpPrefabs)
             {
-                { "item_kong_sugarfree", "Kong Strong Sugar Free" },
-                { "item_kong_sugarfree_desc", $"Ice-cold, blue and sugar free. More stamina and speed for {Minutes(sugarFree)} minutes." },
-                { "se_kong_sugarfree", "Kong Strong" },
-                { "se_kong_sugarfree_tooltip", "Caffeine is rushing through your veins." },
-                { "se_kong_sugarfree_start", "KONG STRONG!" },
-
-                { "item_kong_classic", "Kong Strong Urban Classic" },
-                { "item_kong_classic_desc", $"The red can, full of sugar. A big kick for {Minutes(classic)} minutes, followed by a sugar crash." },
-                { "se_kong_classic", "Sugar Rush" },
-                { "se_kong_classic_tooltip", "Sugar and caffeine. This won't end well." },
-                { "se_kong_classic_start", "KONG STRONG!" },
-
-                { "item_kong_skyr", "Skyr Energy" },
-                { "item_kong_skyr_desc", $"Protein drink with caffeine. Carry more and regenerate faster for {Minutes(skyr)} minutes." },
-                { "se_kong_skyr", "Skyr Power" },
-                { "se_kong_skyr_tooltip", "27 g of protein. Gains incoming." },
-                { "se_kong_skyr_start", "PROTEIN!" },
-
-                { "item_kong_xxl", "Kong Strong XXL (18.9 L)" },
-                { "item_kong_xxl_desc", $"18.9 litres of Sugar Free in a canister. Lasts {Minutes(xxl)} minutes{(Fireproof(xxl) ? " and protects you from fire" : "")}. Good luck carrying it." },
-                { "se_kong_xxl", "Kong Strong XXL" },
-                { "se_kong_xxl_tooltip", "You drank 18.9 litres. Your heart is doing 200 bpm." },
-                { "se_kong_xxl_start", "KONG STRONG XXL!" },
-
-                { "se_kong_stop", "The energy rush wears off." },
-                { "se_kong_crash", "Sugar Crash" },
-                { "se_kong_crash_tooltip", "The sugar is gone and you are tired." },
-                { "se_kong_crash_start", "Sugar crash..." },
-            });
-
-            loc.AddTranslation("German", new Dictionary<string, string>
-            {
-                { "item_kong_sugarfree", "Kong Strong Sugar Free" },
-                { "item_kong_sugarfree_desc", $"Eiskalt, blau und zuckerfrei. Mehr Ausdauer und Tempo für {Minutes(sugarFree)} Minuten." },
-                { "se_kong_sugarfree", "Kong Strong" },
-                { "se_kong_sugarfree_tooltip", "Koffein rauscht durch deine Adern." },
-                { "se_kong_sugarfree_start", "KONG STRONG!" },
-
-                { "item_kong_classic", "Kong Strong Urban Classic" },
-                { "item_kong_classic_desc", $"Die rote Dose mit ordentlich Zucker. Ein starker Kick für {Minutes(classic)} Minuten, danach kommt der Zuckercrash." },
-                { "se_kong_classic", "Zuckerschock" },
-                { "se_kong_classic_tooltip", "Zucker und Koffein. Das geht nicht lange gut." },
-                { "se_kong_classic_start", "KONG STRONG!" },
-
-                { "item_kong_skyr", "Skyr Energy" },
-                { "item_kong_skyr_desc", $"Protein-Drink mit Koffein. Mehr Tragkraft und schnellere Regeneration für {Minutes(skyr)} Minuten." },
-                { "se_kong_skyr", "Skyr Power" },
-                { "se_kong_skyr_tooltip", "27 g Protein. Die Gains kommen." },
-                { "se_kong_skyr_start", "PROTEIN!" },
-
-                { "item_kong_xxl", "Kong Strong XXL (18,9 L)" },
-                { "item_kong_xxl_desc", $"18,9 Liter Sugar Free im Kanister. Hält {Minutes(xxl)} Minuten{(Fireproof(xxl) ? " und schützt vor Feuer" : "")}. Viel Spaß beim Tragen." },
-                { "se_kong_xxl", "Kong Strong XXL" },
-                { "se_kong_xxl_tooltip", "Du hast 18,9 Liter getrunken. Dein Herz schlägt mit 200 bpm." },
-                { "se_kong_xxl_start", "KONG STRONG XXL!" },
-
-                { "se_kong_stop", "Der Energiekick lässt nach." },
-                { "se_kong_crash", "Zuckercrash" },
-                { "se_kong_crash_tooltip", "Der Zucker ist alle und du bist müde." },
-                { "se_kong_crash_start", "Zuckercrash..." },
-            });
-        }
-
-        private void AddDrinks()
-        {
-            PrefabManager.OnVanillaPrefabsAvailable -= AddDrinks;
-
-            bool crashUsed = _crashEnabled && _drinks.Any(d => d.Enabled && d.CausesCrash);
-            if (crashUsed)
-            {
-                try
+                PrefabDump.Dump(Logger, new[]
                 {
-                    SE_SugarRush.Crash = CreateCrash();
-                    ItemManager.Instance.AddStatusEffect(new CustomStatusEffect(SE_SugarRush.Crash, false));
-                }
-                catch (Exception e)
-                {
-                    Logger.LogError($"Failed to add the sugar crash: {e}");
-                    crashUsed = false;
-                }
+                    "MeadStaminaMinor", "MeadStaminaMedium", "MeadTasty", "MeadBaseTasty", "QueensJam", "Coins",
+                    "piece_chest_wood", "piece_chest", "piece_workbench", "piece_table", "piece_banner01",
+                    "piece_bench01", "barrell", "fermenter", "piece_cauldron",
+                });
             }
+
+            Try("the sugar crash", () =>
+            {
+                if (_crashEnabled && _drinks.Any(d => d.Enabled && d.CausesCrash))
+                {
+                    SE_Kong.Crash = AddDebuff("SE_KongSugarCrash", "se_kong_crash", "crash", _crashDuration,
+                        1f - _crashRegenPenalty / 100f, 1f, -_crashSpeedPenalty / 100f);
+                }
+            });
+
+            Try("heart racing", () =>
+            {
+                if (_heartEnabled && SE_Kong.Tolerance.Enabled)
+                {
+                    SE_Kong.HeartRacing = AddDebuff("SE_KongHeartRacing", "se_kong_heartracing", "heartracing", _heartDuration,
+                        1f - _heartStaminaPenalty / 100f, 1f - _heartHealthPenalty / 100f, 0f);
+                }
+            });
+
+            Try(EmptyPrefab, AddEmpty);
 
             foreach (Drink drink in _drinks.Where(d => d.Enabled))
             {
-                try
-                {
-                    AddDrink(drink, crashUsed && drink.CausesCrash);
-                }
-                catch (Exception e)
-                {
-                    Logger.LogError($"Failed to add {drink.PrefabName}: {e}");
-                }
+                Try(drink.PrefabName, () => AddDrink(drink));
+            }
+
+            if (_skyrCup.Enabled)
+            {
+                Try("KongSkyrCup", AddSkyrCup);
             }
         }
 
-        private void AddDrink(Drink drink, bool crashAfter)
+        private void Try(string what, Action action)
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception e)
+            {
+                Logger.LogError($"Failed to add {what}: {e}");
+            }
+        }
+
+        private StatusEffect AddDebuff(string name, string token, string icon, float duration,
+                                       float staminaRegen, float healthRegen, float speed)
+        {
+            var effect = ScriptableObject.CreateInstance<SE_Stats>();
+            effect.name = name;
+            effect.m_name = "$" + token;
+            effect.m_tooltip = effect.m_name + "_tooltip";
+            effect.m_category = StatusCategory;
+            effect.m_icon = Icons.Get(icon);
+            effect.m_ttl = duration;
+            effect.m_startMessageType = MessageHud.MessageType.Center;
+            effect.m_startMessage = effect.m_name + "_start";
+            effect.m_staminaRegenMultiplier = Mathf.Max(0f, staminaRegen);
+            effect.m_healthRegenMultiplier = Mathf.Max(0f, healthRegen);
+            effect.m_speedModifier = speed;
+            ItemManager.Instance.AddStatusEffect(new CustomStatusEffect(effect, false));
+            return effect;
+        }
+
+        private void AddDrink(Drink drink)
         {
             string basePrefab = drink.BasePrefabs.FirstOrDefault(n => PrefabManager.Instance.GetPrefab(n) != null);
             if (basePrefab == null)
@@ -203,13 +261,51 @@ namespace KongStrong
                 return;
             }
 
-            Sprite icon = LoadIcon(drink.IconResource);
+            Sprite icon = Icons.Get(drink.Key.ToLowerInvariant());
             StatusEffect baseEffect = PrefabManager.Instance.GetPrefab(basePrefab)
                 .GetComponent<ItemDrop>().m_itemData.m_shared.m_consumeStatusEffect;
 
-            SE_Stats effect = crashAfter
-                ? ScriptableObject.CreateInstance<SE_SugarRush>()
-                : ScriptableObject.CreateInstance<SE_Stats>();
+            SE_Kong effect = CreateEffect(drink, icon, baseEffect);
+            ItemManager.Instance.AddStatusEffect(new CustomStatusEffect(effect, false));
+
+            var itemConfig = new ItemConfig
+            {
+                Name = $"$item_{drink.Token}",
+                Description = $"$item_{drink.Token}_desc",
+                Icon = icon,
+                Weight = drink.Weight,
+                StackSize = drink.StackSize,
+            };
+            if (!drink.Fermented)
+            {
+                itemConfig.CraftingStation = CraftingStations.GetInternalName(drink.CraftingStation);
+                itemConfig.Amount = Mathf.Max(1, drink.Amount);
+                itemConfig.Requirements = ParseRequirements(drink.PrefabName, drink.Ingredients);
+            }
+
+            var item = new CustomItem(drink.PrefabName, basePrefab, itemConfig);
+            item.ItemDrop.m_itemData.m_shared.m_consumeStatusEffect = effect;
+            item.ItemPrefab.transform.localScale *= drink.ModelScale;
+            ItemManager.Instance.AddItem(item);
+
+            if (drink.ReturnsEmpty)
+            {
+                ReturnsEmpty.Add(itemConfig.Name);
+            }
+
+            if (drink.Fermented)
+            {
+                AddFermenterBase(drink);
+            }
+
+            Logger.LogInfo($"Added {drink.PrefabName} (cloned from {basePrefab}).");
+        }
+
+        private SE_Kong CreateEffect(Drink drink, Sprite icon, StatusEffect baseEffect)
+        {
+            var effect = ScriptableObject.CreateInstance<SE_Kong>();
+            bool crashAfter = drink.CausesCrash && SE_Kong.Crash != null;
+            effect.CausesCrash = crashAfter;
             effect.name = "SE_" + drink.PrefabName;
             effect.m_name = $"$se_{drink.Token}";
             effect.m_tooltip = $"$se_{drink.Token}_tooltip";
@@ -225,19 +321,27 @@ namespace KongStrong
             }
 
             effect.m_staminaUpFront = drink.InstantStamina;
+            effect.m_eitrUpFront = drink.InstantEitr;
+            if (drink.HealOverTime > 0f)
+            {
+                effect.m_healthOverTime = drink.HealOverTime;
+                effect.m_healthOverTimeDuration = 10f;
+                effect.m_healthOverTimeInterval = 1f;
+            }
+
             effect.m_staminaRegenMultiplier = 1f + drink.StaminaRegenBonus / 100f;
             effect.m_healthRegenMultiplier = 1f + drink.HealthRegenBonus / 100f;
+            effect.m_eitrRegenMultiplier = 1f + drink.EitrRegenBonus / 100f;
             effect.m_speedModifier = drink.SpeedBonus / 100f;
             effect.m_runStaminaDrainModifier = -drink.RunStaminaReduction / 100f;
             effect.m_jumpStaminaUseModifier = -drink.JumpStaminaReduction / 100f;
             effect.m_addMaxCarryWeight = drink.CarryWeightBonus;
-            if (drink.FireResistance != HitData.DamageModifier.Normal)
-            {
-                effect.m_mods = new List<HitData.DamageModPair>
-                {
-                    new HitData.DamageModPair { m_type = HitData.DamageType.Fire, m_modifier = drink.FireResistance },
-                };
-            }
+
+            var mods = new List<HitData.DamageModPair>();
+            AddResistance(mods, HitData.DamageType.Fire, drink.FireResistance);
+            AddResistance(mods, HitData.DamageType.Frost, drink.FrostResistance);
+            AddResistance(mods, HitData.DamageType.Poison, drink.PoisonResistance);
+            effect.m_mods = mods;
 
             // Reuse the drinking sound and particles of the mead we cloned.
             if (baseEffect != null)
@@ -246,48 +350,85 @@ namespace KongStrong
                 effect.m_stopEffects = baseEffect.m_stopEffects;
             }
 
-            ItemManager.Instance.AddStatusEffect(new CustomStatusEffect(effect, false));
+            return effect;
+        }
 
-            var itemConfig = new ItemConfig
+        private static void AddResistance(List<HitData.DamageModPair> mods, HitData.DamageType type, HitData.DamageModifier modifier)
+        {
+            if (modifier != HitData.DamageModifier.Normal)
             {
-                Name = $"$item_{drink.Token}",
-                Description = $"$item_{drink.Token}_desc",
+                mods.Add(new HitData.DamageModPair { m_type = type, m_modifier = modifier });
+            }
+        }
+
+        private void AddFermenterBase(Drink drink)
+        {
+            var baseConfig = new ItemConfig
+            {
+                Name = $"$item_{drink.Token}_base",
+                Description = $"$item_{drink.Token}_base_desc",
+                Icon = Icons.Get(drink.Key.ToLowerInvariant() + "_base"),
                 CraftingStation = CraftingStations.GetInternalName(drink.CraftingStation),
                 Amount = Mathf.Max(1, drink.Amount),
-                Requirements = ParseRequirements(drink),
-                Icon = icon,
-                Weight = drink.Weight,
-                StackSize = drink.StackSize,
+                Requirements = ParseRequirements(drink.BasePrefabName, drink.Ingredients),
             };
+            ItemManager.Instance.AddItem(new CustomItem(drink.BasePrefabName, drink.FermenterBase, baseConfig));
 
-            var item = new CustomItem(drink.PrefabName, basePrefab, itemConfig);
-            item.ItemDrop.m_itemData.m_shared.m_consumeStatusEffect = effect;
-            item.ItemPrefab.transform.localScale *= drink.ModelScale;
-            ItemManager.Instance.AddItem(item);
-
-            Logger.LogInfo($"Added {drink.PrefabName} (cloned from {basePrefab}).");
+            ItemManager.Instance.AddItemConversion(new CustomItemConversion(new FermenterConversionConfig
+            {
+                FromItem = drink.BasePrefabName,
+                ToItem = drink.PrefabName,
+                ProducedItems = Mathf.Max(1, drink.FermenterYield),
+            }));
         }
 
-        private SE_Stats CreateCrash()
+        private void AddEmpty()
         {
-            var crash = ScriptableObject.CreateInstance<SE_Stats>();
-            crash.name = "SE_KongSugarCrash";
-            crash.m_name = "$se_kong_crash";
-            crash.m_tooltip = "$se_kong_crash_tooltip";
-            crash.m_category = StatusCategory;
-            crash.m_icon = LoadIcon("KongStrong.crash.png");
-            crash.m_ttl = _crashDuration;
-            crash.m_startMessageType = MessageHud.MessageType.Center;
-            crash.m_startMessage = "$se_kong_crash_start";
-            crash.m_staminaRegenMultiplier = Mathf.Max(0f, 1f - _crashRegenPenalty / 100f);
-            crash.m_speedModifier = -_crashSpeedPenalty / 100f;
-            return crash;
+            var config = new ItemConfig
+            {
+                Name = "$item_kong_empty",
+                Description = "$item_kong_empty_desc",
+                Icon = Icons.Get("empty"),
+                Weight = 0.1f,
+                StackSize = 50,
+            };
+            var item = new CustomItem(EmptyPrefab, "MeadStaminaMinor", config);
+            ItemDrop.ItemData.SharedData shared = item.ItemDrop.m_itemData.m_shared;
+            shared.m_itemType = ItemDrop.ItemData.ItemType.Material;
+            shared.m_consumeStatusEffect = null;
+            shared.m_food = shared.m_foodStamina = shared.m_foodEitr = 0f;
+            ItemManager.Instance.AddItem(item);
         }
 
-        private RequirementConfig[] ParseRequirements(Drink drink)
+        private void AddSkyrCup()
+        {
+            var config = new ItemConfig
+            {
+                Name = "$item_kong_skyrcup",
+                Description = "$item_kong_skyrcup_desc",
+                Icon = Icons.Get("skyrcup"),
+                CraftingStation = CraftingStations.GetInternalName(_skyrCup.CraftingStation),
+                Amount = Mathf.Max(1, _skyrCup.Amount),
+                Requirements = ParseRequirements("KongSkyrCup", _skyrCup.Ingredients),
+                StackSize = 10,
+            };
+            var item = new CustomItem("KongSkyrCup", "QueensJam", config);
+            ItemDrop.ItemData.SharedData shared = item.ItemDrop.m_itemData.m_shared;
+            shared.m_itemType = ItemDrop.ItemData.ItemType.Consumable;
+            shared.m_consumeStatusEffect = null;
+            shared.m_food = _skyrCup.Health;
+            shared.m_foodStamina = _skyrCup.Stamina;
+            shared.m_foodEitr = _skyrCup.Eitr;
+            shared.m_foodBurnTime = _skyrCup.Duration;
+            shared.m_foodRegen = _skyrCup.Regen;
+            ItemManager.Instance.AddItem(item);
+            Logger.LogInfo("Added KongSkyrCup (cloned from QueensJam).");
+        }
+
+        private RequirementConfig[] ParseRequirements(string owner, string value)
         {
             var requirements = new List<RequirementConfig>();
-            foreach (string entry in drink.Ingredients.Split(','))
+            foreach (string entry in value.Split(','))
             {
                 string[] parts = entry.Split(':');
                 string prefab = parts[0].Trim();
@@ -306,24 +447,13 @@ namespace KongStrong
                 // Kept anyway, it might be an item another mod registers later.
                 if (PrefabManager.Instance.GetPrefab(prefab) == null)
                 {
-                    Logger.LogWarning($"{drink.PrefabName}: ingredient '{prefab}' was not found, check the prefab name.");
+                    Logger.LogWarning($"{owner}: ingredient '{prefab}' was not found, check the prefab name.");
                 }
 
                 requirements.Add(new RequirementConfig(prefab, Mathf.Max(1, amount), 0, true));
             }
 
             return requirements.ToArray();
-        }
-
-        private static Sprite LoadIcon(string resource)
-        {
-            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resource))
-            using (var buffer = new MemoryStream())
-            {
-                stream.CopyTo(buffer);
-                Texture2D texture = AssetUtils.LoadImage(buffer.ToArray());
-                return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
-            }
         }
     }
 }
