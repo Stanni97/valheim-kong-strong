@@ -2,7 +2,9 @@
 
 ![Sugar Free](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/sugarfree.png) ![Urban Classic](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/classic.png) ![Skyr Energy](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/skyr.png) ![XXL-Kanister](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/xxl.png)
 
-Ein Valheim-Mod mit vier Energydrinks im Stil von Kong Strong: Sie geben dir mehr Ausdauer, mehr Tempo und mit Skyr sogar mehr Tragkraft.
+![Frost](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/frost.png) ![Toxic](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/toxic.png) ![Eitr](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/eitr.png) ![Met-Bombe](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/metbombe.png) ![Skyr-Becher](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/skyrcup.png) ![Kühlschrank](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/fridge.png) ![Dosenpyramide](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/pyramid.png) ![Pfandautomat](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/automat.png) ![Zapfstelle](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/tap.png)
+
+Ein Valheim-Mod mit Energydrinks im Stil von Kong Strong: mehr Ausdauer, mehr Tempo, Schutz vor Feuer, Frost und Gift, dazu eigene Modelle, Leergut mit Pfandautomat und Baustücke wie Kühlschrank und Zapfstelle.
 
 ## Die Drinks
 
@@ -13,7 +15,22 @@ Ein Valheim-Mod mit vier Energydrinks im Stil von Kong Strong: Sie geben dir meh
 | **Skyr Energy** (Protein-Drink) | 10 Min. | +20 Sofort-Ausdauer, +50 Tragkraft, +25 % Lebens- und Ausdauer-Regeneration |
 | **Kong Strong XXL** (18,9-L-Kanister) | 20 Min. | Wirkung wie Sugar Free, dazu **feuerfest** (halber Feuerschaden). Wiegt 19 kg und stapelt nicht |
 
+| **Frost Edition** (eisblau) | 10 Min. | +30 Sofort-Ausdauer, +25 % Ausdauer-Regeneration, +5 % Tempo, −15 % beim Rennen und Springen, **halber Frostschaden** (wie der Frostresistenz-Met) |
+| **Toxic Edition** (grün, „Gift Edition“) | 10 Min. | wie Frost, aber **halber Giftschaden** |
+| **Eitr Edition** (lila) | 10 Min. | +20 Sofort-Ausdauer, +25 Sofort-Eitr, +25 % Ausdauer- und +50 % Eitr-Regeneration |
+| **Kong-Met-Bombe** | 5 Min. | +50 Leben über 10 Sekunden, +50 % Ausdauer-Regeneration, +10 % Tempo, −25 % beim Rennen und Springen |
+| **Skyr-Becher** (Essen) | 30 Min. | normales Essen für einen der drei Essensplätze: +50 Leben, +20 Ausdauer, Lebensregeneration |
+
 Es wirkt immer nur ein Kong-Drink auf einmal, und während des Zuckercrashs kannst du keinen neuen trinken. Mit Met lassen sich alle Drinks kombinieren.
+
+### Drumherum
+
+- **Kraft-Animation:** Beim Trinken hebst du die Arme wie bei einer Kraft der Verlassenen, samt Eikthyr-Leuchten ohne dessen Ton. Deine echte Kraft und ihre Abklingzeit bleiben unberührt.
+- **Koffein-Toleranz:** Mehrere Drinks innerhalb von 15 Minuten wirken schwächer (der zweite zu 50 %, jeder weitere zu 25 %). Ab dem dritten gibt es 2 Minuten **Herzrasen** mit langsamerer Regeneration.
+- **Zu wach zum Schlafen:** Mit aktivem Kong-Buff verweigert dein Bett den Schlaf.
+- **Leergut:** Dosen und Flaschen hinterlassen leeres Leergut. Daraus baust du die Dosenpyramide, oder du tauschst es am Pfandautomaten gegen Münzen.
+- **Eigene Modelle:** Dosen, Flaschen, Kanister, Becher und Fass sind eigene Modelle, in der Config mit `CustomModels = false` auf die Met-Flaschen des Spiels umschaltbar.
+- **„D K!“-Ruf:** Optional (`[Sound] Shout`, standardmäßig aus) ruft es nach den Kong-Strong-Dosen „D K!“. Mitgeliefert ist ein selbst synthetisierter Ruf. Eine eigene WAV-Datei (16 Bit PCM) legst du unter `BepInEx/config/KongStrong/shout.wav` ab, sie bleibt auf deinem Rechner.
 
 ## Herstellung
 
@@ -26,7 +43,22 @@ Alle Drinks werden am **Kessel** (Cauldron) gebraut. Den Kessel kannst du bauen,
 | Skyr Energy | 1 Ei, 1 Honig, 2 Blaubeeren | 2 | Ebenen |
 | XXL | 6 Vineberries, 3 Smoke Puffs, 3 Gelbe Pilze | 1 | Ashlands |
 
+| Frost Edition | 3 Blaubeeren, 1 Gefrierdrüse, 1 Gelber Pilz | 2 | Deep North |
+| Toxic Edition | 2 Blaubeeren, 1 Schleim, 1 Distel, 1 Gelber Pilz | 2 | Sumpf |
+| Eitr Edition | 1 Saft, 1 Magierhut-Pilz, 1 Gelber Pilz, 2 Blaubeeren | 2 | Mistlands |
+| Skyr-Becher | 2 Eier, 2 Wolkenbeeren, 1 Honig | 2 | Ebenen |
+| Met-Bombe | Ansatz am Kessel: 5 Honig, 2 Sugar Free, 5 Himbeeren, dann im Gärbottich | 6 | Ashlands/Sumpf |
+
 Sugar Free kommt ohne Honig aus, schließlich ist es zuckerfrei.
+
+## Baustücke (Hammer)
+
+| Stück | Station | Zutaten | Besonderheit |
+| --- | --- | --- | --- |
+| Kong-Kühlschrank | Werkbank | 6 Edelholz, 2 Bronze, 1 Gefrierdrüse | 16 Plätze, Tür öffnet sich |
+| Dosenpyramide | – | 10 Kong-Leergut | etwas Komfort |
+| Pfandautomat | Werkbank | 8 Edelholz, 3 Bronze | 1 Münze pro Leergut |
+| Kong-Zapfstelle | Werkbank | 1 XXL-Kanister, 6 Holz | 38 Drinks für alle Mitspieler, Nachfüllen durch Rechtsklick mit einem weiteren XXL |
 
 Alle Werte, Rezepte und Stationen lassen sich in der Config ändern (siehe [Konfiguration](#konfiguration)).
 
@@ -88,7 +120,7 @@ In [r2modman](https://thunderstore.io/c/valheim/p/ebkr/r2modman/) oder [Gale](ht
 
 Nach dem ersten Start mit dem Mod liegt die Datei `BepInEx/config/felix.kongstrong.cfg` im Valheim-Ordner. Änderungen greifen nach einem Neustart des Spiels.
 
-Die Abschnitte `[SugarFree]`, `[Classic]`, `[Skyr]` und `[XXL]` haben jeweils dieselben Schlüssel:
+Die Drink-Abschnitte `[SugarFree]`, `[Classic]`, `[Skyr]`, `[XXL]`, `[Frost]`, `[Toxic]`, `[Eitr]` und `[MetBombe]` haben jeweils dieselben Schlüssel:
 
 | Schlüssel | Bedeutung |
 | --- | --- |
@@ -101,12 +133,16 @@ Die Abschnitte `[SugarFree]`, `[Classic]`, `[Skyr]` und `[XXL]` haben jeweils di
 | `RunStaminaReductionPercent` | Weniger Ausdauerverbrauch beim Rennen in % |
 | `JumpStaminaReductionPercent` | Weniger Ausdauerverbrauch beim Springen in % |
 | `CarryWeightBonus` | Zusätzliche Tragkraft |
-| `FireResistance` | Feuerschaden während des Buffs: `Normal`, `SlightlyResistant`, `Resistant` (halber Schaden), `VeryResistant` oder `Immune` |
+| `InstantEitr`, `EitrRegenBonusPercent`, `HealOverTime` | Sofort-Eitr, schnellere Eitr-Regeneration, Heilung über 10 Sekunden |
+| `FireResistance`, `FrostResistance`, `PoisonResistance` | Schaden während des Buffs: `Normal`, `SlightlyResistant`, `Resistant` (halber Schaden), `VeryResistant` oder `Immune` |
+| `ReturnsEmpty` | Trinken hinterlässt Leergut |
 | `CraftingStation` | Herstellungsort, Standard `Cauldron`, z. B. auch `Workbench` oder `Forge` |
 | `Ingredients` | Zutaten als `Prefab:Anzahl`, durch Kommas getrennt, z. B. `Blueberries:3,Thistle:1`. Unbekannte Namen landen als Warnung im Log |
 | `Amount` | Drinks pro Herstellung |
 
-Für den Zuckercrash gibt es den Abschnitt `[SugarCrash]` mit `Enabled`, `DurationSeconds`, `StaminaRegenPenaltyPercent` und `MoveSpeedPenaltyPercent`.
+Weitere Abschnitte: `[SugarCrash]`, `[CaffeineTolerance]`, `[HeartRacing]`, `[SkyrCup]`, `[General]` (Schlafsperre, Leergut, Modelle, Animation), `[Sound]` und je Baustück `[Fridge]`, `[CanPyramid]`, `[DepositMachine]`, `[Tap]`.
+
+**Updates:** Rezepte (`Ingredients`) und Herstellungsort (`CraftingStation`), die noch auf dem Standard einer älteren Version stehen, werden beim Start automatisch auf den neuen Standard gesetzt. Selbst geänderte Werte bleiben unberührt, die Config muss also nicht gelöscht werden.
 
 Die Prefab-Namen der Zutaten stehen in der [Jotunn-Itemliste](https://valheim-modding.github.io/Jotunn/data/objects/item-list.html).
 
@@ -137,7 +173,7 @@ Das automatische Kopieren ins Spiel schaltest du mit `-p:InstallToGame=false` ab
 
 Bei einer neuen Version die Versionsnummer an zwei Stellen erhöhen: `<Version>` in `KongStrong.csproj` und `PluginVersion` in `src/KongStrongPlugin.cs`.
 
-Die Icons erzeugt `tools/make_icons.py` (Python 3 mit Pillow), der Gorilla kommt aus `tools/gorilla.py`. Als Schriften dienen standardmäßig Noto Sans Black und DejaVu Serif Bold. Andere Pfade setzt du über die Umgebungsvariablen `KONG_FONT_HEAVY` und `KONG_FONT_SLAB`.
+Icons, Modell-Texturen und der eingebaute Ruf entstehen mit Python 3 (Pillow, numpy): `tools/make_icons.py` (Icons, `--classic` für den ersten, klaren Stil, den es auch fertig unter `Assets/backup-v1` gibt), `tools/make_textures.py` (Texturen der Modelle) und `tools/make_sound.py`. Der Gorilla kommt aus `tools/gorilla.py`, die Meshes baut `src/Models.cs` im Code. Als Schriften dienen standardmäßig Noto Sans Black und DejaVu Serif Bold. Andere Pfade setzt du über die Umgebungsvariablen `KONG_FONT_HEAVY` und `KONG_FONT_SLAB`.
 
 ```bash
 python3 tools/make_icons.py Assets 128
@@ -150,7 +186,7 @@ Diese Mod wird vom [Bifrost Updater](https://github.com/Stanni97/bifrost-updater
 
 ## Hinweis
 
-Dies ist ein inoffizieller Fan-Mod ohne Verbindung zu Lidl, Milbona oder der Marke Kong Strong. Die Icons sind eigene Zeichnungen im Stil der Dosen. In der Welt erscheinen die Drinks vorerst als Met-Flaschen aus dem Hauptspiel, der XXL-Kanister ist dabei etwas größer.
+Dies ist ein inoffizieller Fan-Mod ohne Verbindung zu Lidl, Milbona oder der Marke Kong Strong. Icons, Modelle und Ton sind eigene Arbeiten im Stil der Dosen.
 
 ## Lizenz
 

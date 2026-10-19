@@ -86,7 +86,7 @@
   "name": "KongStrongEnergy",
   "version_number": "$(Version)",
   "website_url": "https://github.com/Stanni97/valheim-kong-strong",
-  "description": "Kong Strong energy drinks for Valheim: Sugar Free, Urban Classic (with sugar crash), Skyr Energy and the 18.9 L XXL canister.",
+  "description": "Kong Strong energy drinks for Valheim: Sugar Free, Urban Classic, Skyr, XXL and Frost/Toxic/Eitr editions with own models, empties, a deposit machine, fridge and tap.",
   "dependencies": [
     "denikson-BepInExPack_Valheim-5.4.2333",
     "ValheimModding-Jotunn-2.30.2"
