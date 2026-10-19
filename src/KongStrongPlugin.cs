@@ -48,7 +48,7 @@ namespace KongStrong
             },
             new Drink
             {
-                Key = "Skyr", PrefabName = "KongSkyrEnergy", Model = "skyr", Texture = "tex_skyr", Metallic = 0f, Smoothness = 0.35f,
+                Key = "Skyr", PrefabName = "KongSkyrEnergy", Model = "skyr", Shout = false, Texture = "tex_skyr", Metallic = 0f, Smoothness = 0.35f,
                 BasePrefabs = new[] { "MeadTasty", "MeadStaminaMinor" },
                 Duration = 600f, InstantStamina = 20f, StaminaRegenBonus = 25, HealthRegenBonus = 25,
                 CarryWeightBonus = 50f,
@@ -90,7 +90,7 @@ namespace KongStrong
             },
             new Drink
             {
-                Key = "MetBombe", PrefabName = "KongMetBombe", Fermented = true, Model = "meadbottle", Texture = "tex_metbombe",
+                Key = "MetBombe", PrefabName = "KongMetBombe", Fermented = true, Shout = false, Model = "meadbottle", Texture = "tex_metbombe",
                 Metallic = 0.1f, Smoothness = 0.7f,
                 BasePrefabs = new[] { "MeadTasty", "MeadStaminaMinor" }, FermenterBase = "MeadBaseTasty",
                 Weight = 1f, StackSize = 10, ReturnsEmpty = false,
@@ -180,7 +180,7 @@ namespace KongStrong
                 "Slower stamina regeneration during heart racing, in percent.").Value;
 
             _shout = Config.Bind("Sound", "Shout", false,
-                "Every Kong drink is followed by a shouted \"D K!\".").Value;
+                "Every Kong Strong drink (cans, XXL, tap) is followed by a shouted \"D K!\".").Value;
             _customModels = Config.Bind("General", "CustomModels", true,
                 "Cans, bottles and the canister get their own models. Off: they look like the vanilla meads.").Value;
             SE_Kong.PowerAnimation = Config.Bind("General", "PowerAnimation", true,
@@ -480,7 +480,7 @@ namespace KongStrong
                         baseEffect.m_startEffects, _shoutVolume, 0.35f));
                 }
 
-                effect.m_startEffects = _shout ? Sounds.With(baseEffect.m_startEffects, _shoutSfx) : baseEffect.m_startEffects;
+                effect.m_startEffects = _shout && drink.Shout ? Sounds.With(baseEffect.m_startEffects, _shoutSfx) : baseEffect.m_startEffects;
                 effect.m_stopEffects = baseEffect.m_stopEffects;
             }
 

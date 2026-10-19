@@ -18,6 +18,7 @@ namespace KongStrong
         public int StackSize = 20;
         public float ModelScale = 1f;            // only for the vanilla model (CustomModels = false)
         public bool CausesCrash;
+        public bool Shout = true;                // the "D K!" (if [Sound] Shout is on); only the Kong Strong drinks
 
         // Own model (see Models) and texture; Glow tints the item light of magic drinks.
         public string Model = "can";
