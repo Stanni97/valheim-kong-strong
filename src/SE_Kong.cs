@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
+using HarmonyLib;
 using UnityEngine;
 
 namespace KongStrong
@@ -13,6 +15,16 @@ namespace KongStrong
         internal static StatusEffect HeartRacing;
         internal static ToleranceSettings Tolerance = new ToleranceSettings();
 
+        /// <summary>Raise the arms like activating a Forsaken power, with this effect (visuals only).</summary>
+        internal static bool PowerAnimation = true;
+        internal static EffectList PowerEffects;
+
+        /// <summary>Until then the guardian power call of our animation is swallowed (see Patches).</summary>
+        internal static float SuppressGuardianPowerUntil;
+
+        private static readonly AccessTools.FieldRef<Character, ZSyncAnimation> Zanim =
+            AccessTools.FieldRefAccess<Character, ZSyncAnimation>("m_zanim");
+
         public bool CausesCrash;
 
         public override void Setup(Character character)
@@ -21,6 +33,10 @@ namespace KongStrong
             if (character != null && character == Player.m_localPlayer)
             {
                 ApplyTolerance(character);
+                if (PowerAnimation)
+                {
+                    character.StartCoroutine(PlayPowerAnimation(character));
+                }
             }
 
             base.Setup(character);
@@ -35,6 +51,25 @@ namespace KongStrong
             {
                 m_character.GetSEMan().AddStatusEffect(Crash.NameHash(), true);
             }
+        }
+
+        private static IEnumerator PlayPowerAnimation(Character character)
+        {
+            // Let the drinking animation finish first.
+            yield return new WaitForSeconds(0.5f);
+            if (character == null || character.IsDead() || character.InAttack() || character.InDodge() || !character.CanMove())
+            {
+                yield break;
+            }
+
+            ZSyncAnimation zanim = Zanim(character);
+            if (zanim != null)
+            {
+                SuppressGuardianPowerUntil = Time.time + 3f;
+                zanim.SetTrigger("gpower");
+            }
+
+            PowerEffects?.Create(character.transform.position, character.transform.rotation, character.transform);
         }
 
         public static bool HasActiveDrink(Character character)

@@ -19,10 +19,8 @@ from PIL import Image, ImageChops, ImageDraw, ImageEnhance, ImageFilter, ImageFo
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gorilla import GH, GW, draw_full_face, draw_half_face  # noqa: E402
 
-ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
-CLASSIC = "--classic" in sys.argv
-OUT_DIR = ARGS[0]
-SIZE = int(ARGS[1]) if len(ARGS) > 1 else 128
+CLASSIC = False            # set by main(); the drawing helpers are also used by make_textures.py
+SIZE = 128
 FONT_HEAVY = os.environ.get("KONG_FONT_HEAVY", "/usr/share/fonts/noto/NotoSans-Black.ttf")
 FONT_SLAB = os.environ.get("KONG_FONT_SLAB", "/usr/share/fonts/TTF/DejaVuSerif-Bold.ttf")
 
@@ -448,16 +446,30 @@ def finish(layer, seed=0):
     return out.resize((SIZE, SIZE), Image.LANCZOS)
 
 
-os.makedirs(OUT_DIR, exist_ok=True)
-for name, layer in (("sugarfree", draw_can("blue", "SUGAR\nFREE")),
-                    ("classic", draw_can("red", "URBAN\nCLASSIC")),
-                    ("skyr", draw_skyr()), ("xxl", draw_xxl()), ("crash", draw_crash()),
-                    ("frost", draw_can("ice", "FROST\nEDITION")),
-                    ("toxic", draw_can("green", "TOXIC\nEDITION")),
-                    ("eitr", draw_can("purple", "EITR\nEDITION")),
-                    ("empty", draw_empty()), ("skyrcup", draw_cup()),
-                    ("metbombe", draw_bottle("blue", "MET")), ("metbombe_base", draw_barrel()),
-                    ("heartracing", draw_heart())):
-    path = os.path.join(OUT_DIR, f"{name}.png")
-    finish(layer, seed=name).save(path)
-    print("wrote", path)
+def main():
+    global CLASSIC, SIZE
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    CLASSIC = "--classic" in sys.argv
+    out_dir = args[0]
+    SIZE = int(args[1]) if len(args) > 1 else 128
+
+    icons = (
+        ("sugarfree", lambda: draw_can("blue", "SUGAR\nFREE")),
+        ("classic", lambda: draw_can("red", "URBAN\nCLASSIC")),
+        ("skyr", draw_skyr), ("xxl", draw_xxl), ("crash", draw_crash),
+        ("frost", lambda: draw_can("ice", "FROST\nEDITION")),
+        ("toxic", lambda: draw_can("green", "TOXIC\nEDITION")),
+        ("eitr", lambda: draw_can("purple", "EITR\nEDITION")),
+        ("empty", draw_empty), ("skyrcup", draw_cup),
+        ("metbombe", lambda: draw_bottle("blue", "MET")), ("metbombe_base", draw_barrel),
+        ("heartracing", draw_heart),
+    )
+    os.makedirs(out_dir, exist_ok=True)
+    for name, draw in icons:
+        path = os.path.join(out_dir, f"{name}.png")
+        finish(draw(), seed=name).save(path)
+        print("wrote", path)
+
+
+if __name__ == "__main__":
+    main()

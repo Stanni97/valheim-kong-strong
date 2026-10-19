@@ -174,8 +174,10 @@ namespace KongStrong
             _heartStaminaPenalty = Config.Bind("HeartRacing", "StaminaRegenPenaltyPercent", 25,
                 "Slower stamina regeneration during heart racing, in percent.").Value;
 
-            _shout = Config.Bind("Sound", "Shout", true,
+            _shout = Config.Bind("Sound", "Shout", false,
                 "Every Kong drink is followed by a shouted \"D K!\".").Value;
+            SE_Kong.PowerAnimation = Config.Bind("General", "PowerAnimation", true,
+                "Drinking Kong raises your arms like activating a Forsaken power, with Eikthyr's glow.").Value;
             _shoutVolume = Config.Bind("Sound", "ShoutVolume", 0.8f,
                 new BepInEx.Configuration.ConfigDescription("Volume of the shout.", new BepInEx.Configuration.AcceptableValueRange<float>(0f, 1f))).Value;
             _shoutFile = Config.Bind("Sound", "CustomShoutFile", "KongStrong/shout.wav",
@@ -223,6 +225,19 @@ namespace KongStrong
                 {
                     SE_Kong.HeartRacing = AddDebuff("SE_KongHeartRacing", "se_kong_heartracing", "heartracing", _heartDuration,
                         1f - _heartStaminaPenalty / 100f, 1f - _heartHealthPenalty / 100f, 0f);
+                }
+            });
+
+            Try("the power effect", () =>
+            {
+                // Visuals of Eikthyr's power, without its sound.
+                StatusEffect eikthyr = PrefabManager.Cache.GetPrefab<StatusEffect>("GP_Eikthyr");
+                EffectList.EffectData[] visuals = eikthyr?.m_startEffects?.m_effectPrefabs?
+                    .Where(e => e.m_prefab != null && e.m_prefab.GetComponentInChildren<ZSFX>(true) == null).ToArray();
+                if (visuals != null && visuals.Length > 0)
+                {
+                    SE_Kong.PowerEffects = new EffectList { m_effectPrefabs = visuals };
+                    Logger.LogInfo("Power effect: " + string.Join(", ", visuals.Select(v => v.m_prefab.name)));
                 }
             });
 

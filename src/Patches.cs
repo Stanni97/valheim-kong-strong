@@ -26,6 +26,23 @@ namespace KongStrong
             return false;
         }
 
+        /// <summary>
+        /// The power animation played after a Kong drink calls ActivateGuardianPower from an animation event;
+        /// that one call must not use up the player's real Forsaken power.
+        /// </summary>
+        [HarmonyPatch(typeof(Player), nameof(Player.ActivateGuardianPower)), HarmonyPrefix]
+        private static bool ActivateGuardianPower(Player __instance, ref bool __result)
+        {
+            if (__instance != Player.m_localPlayer || Time.time > SE_Kong.SuppressGuardianPowerUntil)
+            {
+                return true;
+            }
+
+            SE_Kong.SuppressGuardianPowerUntil = 0f;
+            __result = false;
+            return false;
+        }
+
         /// <summary>Drinking a can or bottle leaves its empty (Leergut) behind.</summary>
         [HarmonyPatch(typeof(Player), nameof(Player.ConsumeItem)), HarmonyPostfix]
         private static void ConsumeItem(Player __instance, ItemDrop.ItemData item, bool __result)
