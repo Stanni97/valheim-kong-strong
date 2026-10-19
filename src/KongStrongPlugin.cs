@@ -188,6 +188,12 @@ namespace KongStrong
                     "piece_chest_wood", "piece_chest", "piece_workbench", "piece_table", "piece_banner01",
                     "piece_bench01", "barrell", "fermenter", "piece_cauldron",
                 });
+                PrefabDump.ExportIcons(Logger, new[]
+                {
+                    "MeadStaminaMinor", "MeadTasty", "MeadBaseTasty", "MeadFrostResist", "MeadPoisonResist", "MeadEitrMinor",
+                    "QueensJam", "CarrotSoup", "Coins", "Blueberries", "Honey", "Raspberry", "FreezeGland", "Bronze",
+                    "piece_chest_wood", "fermenter", "piece_cauldron",
+                });
             }
 
             Try("the sugar crash", () =>

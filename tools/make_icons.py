@@ -1,8 +1,10 @@
 """Draws the item icons for all Kong Strong variants.
 
-Usage: python3 make_icons.py OUT_DIR [SIZE]
-  Writes sugarfree.png, classic.png, skyr.png, xxl.png and crash.png.
+Usage: python3 make_icons.py OUT_DIR [SIZE] [--classic]
+  Writes one PNG per item and status effect.
   SIZE defaults to 128 (item icons); Thunderstore wants 256.
+  The default style is painted and colour graded to sit next to Valheim's own icons;
+  --classic gives the clean, bright first version (kept in Assets/backup-v1).
 
 Fonts: set KONG_FONT_HEAVY (heavy sans) and KONG_FONT_SLAB (bold slab/serif) to
 override the default Noto Sans Black and DejaVu Serif Bold paths.
@@ -10,14 +12,17 @@ override the default Noto Sans Black and DejaVu Serif Bold paths.
 Everything is drawn from simple shapes; the gorilla (gorilla.py) is an own drawing.
 """
 import os
+import random
 import sys
-from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont, ImageOps
+from PIL import Image, ImageChops, ImageDraw, ImageEnhance, ImageFilter, ImageFont, ImageOps
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gorilla import GH, GW, draw_full_face, draw_half_face  # noqa: E402
 
-OUT_DIR = sys.argv[1]
-SIZE = int(sys.argv[2]) if len(sys.argv) > 2 else 128
+ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
+CLASSIC = "--classic" in sys.argv
+OUT_DIR = ARGS[0]
+SIZE = int(ARGS[1]) if len(ARGS) > 1 else 128
 FONT_HEAVY = os.environ.get("KONG_FONT_HEAVY", "/usr/share/fonts/noto/NotoSans-Black.ttf")
 FONT_SLAB = os.environ.get("KONG_FONT_SLAB", "/usr/share/fonts/TTF/DejaVuSerif-Bold.ttf")
 
@@ -369,14 +374,60 @@ def draw_heart():
     return layer
 
 
-def finish(layer):
-    """Dark outline and soft drop shadow, like vanilla Valheim icons."""
+def valheimify(layer, seed):
+    """Paints over the clean drawing: muted, warm colours, light from the top left,
+    darker edges and brush texture, so the icons sit next to Valheim's hand painted ones."""
+    rng = random.Random(seed)
     alpha = layer.getchannel("A")
-    outline = alpha.filter(ImageFilter.MaxFilter(13))
+    rgb = layer.convert("RGB")
+
+    # muted, slightly warm and less contrasty
+    rgb = ImageEnhance.Color(rgb).enhance(0.68)
+    rgb = ImageEnhance.Contrast(rgb).enhance(0.9)
+    rgb = Image.blend(rgb, ImageChops.multiply(rgb, Image.new("RGB", (W, H), (255, 226, 178))), 0.45)
+
+    # painterly smear: mode filter merges small details into flat strokes
+    rgb = Image.blend(rgb, rgb.filter(ImageFilter.ModeFilter(9)), 0.55)
+
+    # light from the top left, shade to the bottom right
+    light = Image.linear_gradient("L").rotate(45, expand=False).resize((W, H))
+    light = ImageOps.invert(light).point(lambda v: int(150 + v * 0.55))
+    rgb = ImageChops.multiply(rgb, Image.merge("RGB", (light, light, light)))
+    rgb = ImageEnhance.Brightness(rgb).enhance(1.32)
+
+    # darker rim along the silhouette (fake ambient occlusion)
+    inner = alpha.filter(ImageFilter.MinFilter(17)).filter(ImageFilter.GaussianBlur(14))
+    rim = ImageOps.invert(inner).point(lambda v: int(255 - v * 0.45))
+    rgb = ImageChops.multiply(rgb, Image.merge("RGB", (rim, rim, rim)))
+
+    # soft, blotchy brush texture (large scale, low amplitude) and a few darker strokes
+    noise = Image.effect_noise((W // 16, H // 16), 50).resize((W, H), Image.BICUBIC).filter(ImageFilter.GaussianBlur(6))
+    noise = noise.point(lambda v: int(236 + (v - 128) * 0.16))
+    rgb = ImageChops.multiply(rgb, Image.merge("RGB", (noise, noise, noise)))
+    strokes = Image.new("L", (W, H), 255)
+    d = ImageDraw.Draw(strokes)
+    for _ in range(14):
+        x, y = rng.randint(80, W - 80), rng.randint(80, H - 80)
+        length, slope = rng.randint(20, 50), rng.uniform(-0.4, 0.4)
+        d.line([(x, y), (x + length, y + int(length * slope))], fill=rng.randint(200, 228), width=rng.randint(5, 9))
+    strokes = strokes.filter(ImageFilter.GaussianBlur(3))
+    rgb = ImageChops.multiply(rgb, Image.merge("RGB", (strokes, strokes, strokes)))
+
+    out = rgb.convert("RGBA")
+    out.putalpha(alpha)
+    return out
+
+
+def finish(layer, seed=0):
+    """Outline and soft drop shadow, like vanilla Valheim icons."""
+    if not CLASSIC:
+        layer = valheimify(layer, seed)
+    alpha = layer.getchannel("A")
+    outline = alpha.filter(ImageFilter.MaxFilter(11 if not CLASSIC else 13))
     shadow = alpha.filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.GaussianBlur(10))
     out = new_layer()
     out.paste(Image.new("RGBA", (W, H), (0, 0, 0, 150)), (10, 12), shadow)
-    out.paste(Image.new("RGBA", (W, H), (12, 10, 8, 255)), (0, 0), outline)
+    out.paste(Image.new("RGBA", (W, H), (12, 10, 8, 255) if CLASSIC else (34, 22, 12, 235)), (0, 0), outline)
     out.alpha_composite(layer)
     return out.resize((SIZE, SIZE), Image.LANCZOS)
 
@@ -392,5 +443,5 @@ for name, layer in (("sugarfree", draw_can("blue", "SUGAR\nFREE")),
                     ("metbombe", draw_bottle("blue", "MET")), ("metbombe_base", draw_barrel()),
                     ("heartracing", draw_heart())):
     path = os.path.join(OUT_DIR, f"{name}.png")
-    finish(layer).save(path)
+    finish(layer, seed=name).save(path)
     print("wrote", path)

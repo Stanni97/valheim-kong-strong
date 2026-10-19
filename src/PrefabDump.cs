@@ -1,5 +1,8 @@
+using System;
+using System.IO;
 using System.Linq;
 using System.Text;
+using BepInEx;
 using BepInEx.Logging;
 using Jotunn.Managers;
 using UnityEngine;
@@ -9,6 +12,59 @@ namespace KongStrong
     /// <summary>Development aid: logs the structure of vanilla prefabs (Debug.DumpPrefabs in the config).</summary>
     internal static class PrefabDump
     {
+        /// <summary>Writes the icons of the given items and pieces as PNGs to BepInEx/cache/KongStrongDump.</summary>
+        public static void ExportIcons(ManualLogSource log, string[] names)
+        {
+            string folder = Path.Combine(Paths.CachePath, "KongStrongDump");
+            Directory.CreateDirectory(folder);
+            foreach (string name in names)
+            {
+                try
+                {
+                    GameObject prefab = PrefabManager.Instance.GetPrefab(name);
+                    Sprite icon = prefab == null ? null
+                        : prefab.GetComponent<ItemDrop>()?.m_itemData.m_shared.m_icons?.FirstOrDefault()
+                          ?? prefab.GetComponent<Piece>()?.m_icon;
+                    if (icon == null)
+                    {
+                        log.LogInfo($"=== ICON {name}: none");
+                        continue;
+                    }
+
+                    Texture2D readable = Readable(icon);
+                    File.WriteAllBytes(Path.Combine(folder, name + ".png"), readable.EncodeToPNG());
+                    log.LogInfo($"=== ICON {name}: {readable.width}x{readable.height} -> {folder}");
+                }
+                catch (Exception e)
+                {
+                    log.LogWarning($"=== ICON {name}: {e.Message}");
+                }
+            }
+        }
+
+        /// <summary>Copies the sprite out of its (possibly unreadable) atlas through a render texture.</summary>
+        private static Texture2D Readable(Sprite sprite)
+        {
+            Texture2D source = sprite.texture;
+            Rect rect = sprite.textureRect;
+            RenderTexture rt = RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
+            RenderTexture previous = RenderTexture.active;
+            try
+            {
+                Graphics.Blit(source, rt);
+                RenderTexture.active = rt;
+                var result = new Texture2D((int)rect.width, (int)rect.height, TextureFormat.RGBA32, false);
+                result.ReadPixels(rect, 0, 0);
+                result.Apply();
+                return result;
+            }
+            finally
+            {
+                RenderTexture.active = previous;
+                RenderTexture.ReleaseTemporary(rt);
+            }
+        }
+
         public static void Dump(ManualLogSource log, string[] names)
         {
             foreach (string name in names)
