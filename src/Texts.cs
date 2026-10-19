@@ -83,6 +83,22 @@ namespace KongStrong
 
                 { "msg_kong_tolerance", "Caffeine tolerance: the drink works less." },
                 { "msg_kong_tooawake", "You are way too awake to sleep." },
+
+                { "piece_kong_fridge", "Kong fridge" },
+                { "piece_kong_fridge_desc", "Keeps your Kong ice-cold. 16 slots." },
+                { "piece_kong_pyramid", "Can pyramid" },
+                { "piece_kong_pyramid_desc", "Ten empties, artfully stacked. A little comfort for true connoisseurs." },
+                { "piece_kong_automat", "Deposit machine" },
+                { "piece_kong_automat_desc", "Return your Kong empties for coins." },
+                { "piece_kong_automat_use", "Return empties" },
+                { "piece_kong_tap", "Kong tap" },
+                { "piece_kong_tap_desc", "An XXL canister to share: everyone can tap a Sugar Free here. Refill it with another canister." },
+                { "piece_kong_tap_use", "Tap a Kong" },
+                { "piece_kong_tap_refill", "Refill with an XXL canister" },
+                { "msg_kong_noempties", "You have no empties on you." },
+                { "msg_kong_deposit", "Deposit: {0} empties, {1} coins" },
+                { "msg_kong_tapempty", "The tap is empty." },
+                { "msg_kong_refilled", "Tap refilled." },
             });
 
             loc.AddTranslation("German", new Dictionary<string, string>
@@ -153,6 +169,22 @@ namespace KongStrong
 
                 { "msg_kong_tolerance", "Koffein-Toleranz: Der Drink wirkt schwächer." },
                 { "msg_kong_tooawake", "Du bist viel zu wach zum Schlafen." },
+
+                { "piece_kong_fridge", "Kong-Kühlschrank" },
+                { "piece_kong_fridge_desc", "Hält dein Kong eiskalt. 16 Plätze." },
+                { "piece_kong_pyramid", "Dosenpyramide" },
+                { "piece_kong_pyramid_desc", "Zehn leere Dosen, kunstvoll gestapelt. Etwas Komfort für echte Kenner." },
+                { "piece_kong_automat", "Pfandautomat" },
+                { "piece_kong_automat_desc", "Gib dein Kong-Leergut gegen Münzen zurück." },
+                { "piece_kong_automat_use", "Leergut zurückgeben" },
+                { "piece_kong_tap", "Kong-Zapfstelle" },
+                { "piece_kong_tap_desc", "Ein XXL-Kanister zum Teilen: Hier kann sich jeder ein Sugar Free zapfen. Mit einem weiteren Kanister auffüllbar." },
+                { "piece_kong_tap_use", "Kong zapfen" },
+                { "piece_kong_tap_refill", "Mit XXL-Kanister auffüllen" },
+                { "msg_kong_noempties", "Du hast kein Leergut dabei." },
+                { "msg_kong_deposit", "Pfand: {0} Leergut, {1} Münzen" },
+                { "msg_kong_tapempty", "Die Zapfstelle ist leer." },
+                { "msg_kong_refilled", "Zapfstelle aufgefüllt." },
             });
         }
 

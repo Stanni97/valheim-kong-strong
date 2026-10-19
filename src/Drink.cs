@@ -16,8 +16,15 @@ namespace KongStrong
         public string[] BasePrefabs = { "MeadStaminaMinor", "MeadStaminaMedium", "MeadTasty" };
         public float Weight = 0.5f;
         public int StackSize = 20;
-        public float ModelScale = 1f;
+        public float ModelScale = 1f;            // only for the vanilla model (CustomModels = false)
         public bool CausesCrash;
+
+        // Own model (see Models) and texture; Glow tints the item light of magic drinks.
+        public string Model = "can";
+        public string Texture;
+        public float Metallic = 0.55f;
+        public float Smoothness = 0.6f;
+        public UnityEngine.Color? Glow;
 
         // Fermented drinks are not crafted themselves: the recipe makes a base for the fermenter.
         public bool Fermented;

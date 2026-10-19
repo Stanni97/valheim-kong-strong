@@ -198,7 +198,7 @@ def tex_xxl():
         d.ellipse([x, y, x + 8, y + 8], fill=(250, 214, 120))
     d.rectangle([int(0.6 * w), 0, w, y_of(0.86, h)], fill=(240, 240, 240))
     top, bottom = y_of(0.72, h), y_of(0.16, h)
-    x0, split, x1 = int(0.02 * w), int(0.09 * w), int(0.23 * w)
+    x0, split, x1 = int(0.15 * w), int(0.22 * w), int(0.35 * w)
     d.rectangle([x0, top, x1, bottom], fill=mi.BLACK)
     d.rectangle([x0, top, split, bottom], fill=main)
     face = draw_half_face("blue").resize((70, int(70 * GH / GW)), Image.LANCZOS)
@@ -281,6 +281,63 @@ def tex_wood():
         d.rectangle([0, y, w, y + 30], fill=mi.lerp((128, 84, 46), (104, 66, 34), (i % 3) / 2))
         d.line([(0, y), (w, y)], fill=(70, 44, 20), width=3)
     return img
+
+
+# ---------------------------------------------------------------- piece icons (512 layers for make_icons)
+def _box_icon(front, side, top_color, x0=150, y0=110, x1=330, y1=470, dx=70, dy=-50):
+    """Simple 3/4 view of a box: front image, sheared side image, flat top."""
+    layer = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
+    layer.alpha_composite(front.resize((x1 - x0, y1 - y0), Image.LANCZOS).convert("RGBA"), (x0, y0))
+    sw, sh = dx, y1 - y0
+    side = side.resize((sw, sh), Image.LANCZOS).convert("RGBA")
+    sheared = side.transform((sw, sh - dy), Image.AFFINE, (1, 0, 0, -dy / sw, 1, dy), resample=Image.BICUBIC)
+    shade = Image.new("RGBA", sheared.size, (0, 0, 0, 70))
+    sheared.alpha_composite(Image.composite(shade, Image.new("RGBA", sheared.size, (0, 0, 0, 0)), sheared.getchannel("A")))
+    layer.alpha_composite(sheared, (x1, y0 + dy))
+    d = ImageDraw.Draw(layer)
+    d.polygon([(x0, y0), (x0 + dx, y0 + dy), (x1 + dx, y0 + dy), (x1, y0)], fill=top_color)
+    return layer
+
+
+def icon_fridge():
+    tex = tex_fridge()
+    return _box_icon(tex.crop((0, 0, 256, 512)), tex.crop((256, 0, 512, 256)), (214, 216, 220, 255), x0=170, x1=330)
+
+
+def icon_automat():
+    tex = tex_automat()
+    return _box_icon(tex.crop((0, 0, 256, 512)), tex.crop((256, 0, 512, 256)), (70, 74, 82, 255), x0=160, x1=340)
+
+
+def icon_pyramid():
+    layer = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
+    palettes = [("blue", "SUGAR\nFREE"), ("red", "URBAN\nCLASSIC"), ("ice", "FROST\nEDITION"), ("green", "TOXIC\nEDITION")]
+    can_w, can_h = 88, 116
+    for row in range(4):
+        count = 4 - row
+        can = mi.draw_can(*palettes[row]).crop((150, 10, 362, 500)).resize((can_w, can_h), Image.LANCZOS)
+        for i in range(count):
+            x = 256 + int((i - (count - 1) / 2) * (can_w + 4)) - can_w // 2
+            y = 470 - (row + 1) * can_h
+            layer.alpha_composite(can, (x, y))
+    return layer
+
+
+def icon_tap():
+    layer = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    wood, dark = (128, 84, 46, 255), (90, 58, 30, 255)
+    for x in (130, 360):
+        d.rectangle([x, 330, x + 24, 490], fill=wood, outline=dark, width=4)
+    d.rectangle([110, 316, 400, 344], fill=wood, outline=dark, width=4)
+    can = mi.draw_xxl().resize((300, 300), Image.LANCZOS)
+    layer.alpha_composite(can, (106, 40))
+    d.rectangle([236, 300, 276, 318], fill=(200, 200, 205, 255), outline=(90, 90, 96, 255), width=3)
+    d.rectangle([248, 316, 264, 340], fill=(200, 200, 205, 255), outline=(90, 90, 96, 255), width=3)
+    return layer
+
+
+PIECE_ICONS = {"fridge": icon_fridge, "automat": icon_automat, "pyramid": icon_pyramid, "tap": icon_tap}
 
 
 TEXTURES = {

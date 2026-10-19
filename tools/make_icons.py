@@ -464,6 +464,8 @@ def main():
         ("metbombe", lambda: draw_bottle("blue", "MET")), ("metbombe_base", draw_barrel),
         ("heartracing", draw_heart),
     )
+    import make_textures                                   # piece icons are drawn from the model textures
+    icons += tuple(make_textures.PIECE_ICONS.items())
     os.makedirs(out_dir, exist_ok=True)
     for name, draw in icons:
         path = os.path.join(out_dir, f"{name}.png")

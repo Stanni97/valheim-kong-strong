@@ -32,7 +32,7 @@ namespace KongStrong
         {
             new Drink
             {
-                Key = "SugarFree", PrefabName = "KongStrongSugarFree",
+                Key = "SugarFree", PrefabName = "KongStrongSugarFree", Texture = "tex_can_sugarfree",
                 Duration = 300f, InstantStamina = 40f, StaminaRegenBonus = 50, SpeedBonus = 10,
                 RunStaminaReduction = 25, JumpStaminaReduction = 25,
                 Ingredients = "Blueberries:3,Thistle:1,MushroomYellow:1", Amount = 2,
@@ -40,7 +40,7 @@ namespace KongStrong
             },
             new Drink
             {
-                Key = "Classic", PrefabName = "KongStrongClassic", CausesCrash = true,
+                Key = "Classic", PrefabName = "KongStrongClassic", CausesCrash = true, Texture = "tex_can_classic",
                 Duration = 180f, InstantStamina = 80f, StaminaRegenBonus = 75, SpeedBonus = 15,
                 RunStaminaReduction = 25, JumpStaminaReduction = 25,
                 Ingredients = "Honey:2,Raspberry:3,Bloodbag:1,MushroomYellow:1", Amount = 2,
@@ -48,7 +48,7 @@ namespace KongStrong
             },
             new Drink
             {
-                Key = "Skyr", PrefabName = "KongSkyrEnergy",
+                Key = "Skyr", PrefabName = "KongSkyrEnergy", Model = "skyr", Texture = "tex_skyr", Metallic = 0f, Smoothness = 0.35f,
                 BasePrefabs = new[] { "MeadTasty", "MeadStaminaMinor" },
                 Duration = 600f, InstantStamina = 20f, StaminaRegenBonus = 25, HealthRegenBonus = 25,
                 CarryWeightBonus = 50f,
@@ -57,7 +57,7 @@ namespace KongStrong
             },
             new Drink
             {
-                Key = "XXL", PrefabName = "KongStrongXXL",
+                Key = "XXL", PrefabName = "KongStrongXXL", Model = "canister", Texture = "tex_xxl", Metallic = 0f, Smoothness = 0.4f,
                 BasePrefabs = new[] { "MeadStaminaMedium", "MeadStaminaMinor" },
                 Weight = 19f, StackSize = 1, ModelScale = 1.8f, ReturnsEmpty = false,
                 FireResistance = HitData.DamageModifier.Resistant,
@@ -68,7 +68,7 @@ namespace KongStrong
             },
             new Drink
             {
-                Key = "Frost", PrefabName = "KongStrongFrost",
+                Key = "Frost", PrefabName = "KongStrongFrost", Texture = "tex_can_frost", Glow = new Color(0.6f, 0.85f, 1f),
                 FrostResistance = HitData.DamageModifier.Resistant,
                 Duration = 600f, InstantStamina = 30f, StaminaRegenBonus = 25, SpeedBonus = 5,
                 RunStaminaReduction = 15, JumpStaminaReduction = 15,
@@ -76,7 +76,7 @@ namespace KongStrong
             },
             new Drink
             {
-                Key = "Toxic", PrefabName = "KongStrongToxic",
+                Key = "Toxic", PrefabName = "KongStrongToxic", Texture = "tex_can_toxic", Glow = new Color(0.55f, 1f, 0.45f),
                 PoisonResistance = HitData.DamageModifier.Resistant,
                 Duration = 600f, InstantStamina = 30f, StaminaRegenBonus = 25, SpeedBonus = 5,
                 RunStaminaReduction = 15, JumpStaminaReduction = 15,
@@ -84,13 +84,14 @@ namespace KongStrong
             },
             new Drink
             {
-                Key = "Eitr", PrefabName = "KongStrongEitr",
+                Key = "Eitr", PrefabName = "KongStrongEitr", Texture = "tex_can_eitr", Glow = new Color(0.8f, 0.55f, 1f),
                 Duration = 600f, InstantStamina = 20f, InstantEitr = 25f, StaminaRegenBonus = 25, EitrRegenBonus = 50,
                 Ingredients = "Sap:1,MushroomMagecap:1,MushroomYellow:1,Blueberries:2", Amount = 2,
             },
             new Drink
             {
-                Key = "MetBombe", PrefabName = "KongMetBombe", Fermented = true,
+                Key = "MetBombe", PrefabName = "KongMetBombe", Fermented = true, Model = "meadbottle", Texture = "tex_metbombe",
+                Metallic = 0.1f, Smoothness = 0.7f,
                 BasePrefabs = new[] { "MeadTasty", "MeadStaminaMinor" }, FermenterBase = "MeadBaseTasty",
                 Weight = 1f, StackSize = 10, ReturnsEmpty = false,
                 Duration = 300f, HealOverTime = 50f, StaminaRegenBonus = 50, SpeedBonus = 10,
@@ -112,6 +113,9 @@ namespace KongStrong
         private int _heartStaminaPenalty;
 
         private bool _dumpPrefabs;
+        private bool _customModels;
+        private readonly Dictionary<string, Mesh> _meshes = new Dictionary<string, Mesh>();
+        private readonly Dictionary<string, SE_Kong> _effects = new Dictionary<string, SE_Kong>();
         private bool _shout;
         private float _shoutVolume;
         private string _shoutFile;
@@ -131,6 +135,7 @@ namespace KongStrong
             }
 
             _skyrCup.Bind(Config);
+            Pieces.Bind(Config);
             BindGeneral();
 
             Texts.Register(Get, _skyrCup);
@@ -176,6 +181,8 @@ namespace KongStrong
 
             _shout = Config.Bind("Sound", "Shout", false,
                 "Every Kong drink is followed by a shouted \"D K!\".").Value;
+            _customModels = Config.Bind("General", "CustomModels", true,
+                "Cans, bottles and the canister get their own models. Off: they look like the vanilla meads.").Value;
             SE_Kong.PowerAnimation = Config.Bind("General", "PowerAnimation", true,
                 "Drinking Kong raises your arms like activating a Forsaken power, with Eikthyr's glow.").Value;
             _shoutVolume = Config.Bind("Sound", "ShoutVolume", 0.8f,
@@ -252,6 +259,48 @@ namespace KongStrong
             {
                 Try("KongSkyrCup", AddSkyrCup);
             }
+
+            KongTap.Effect = _effects.TryGetValue("SugarFree", out SE_Kong tap) ? tap
+                : _effects.TryGetValue("XXL", out SE_Kong xxl) ? xxl : null;
+            Pieces.Register(ParseRequirements, Try);
+        }
+
+        private Mesh MeshFor(string model)
+        {
+            if (!_meshes.TryGetValue(model, out Mesh mesh))
+            {
+                switch (model)
+                {
+                    case "skyr": mesh = Models.SkyrBottle(); break;
+                    case "canister": mesh = Models.Canister(); break;
+                    case "meadbottle": mesh = Models.MeadBottle(); break;
+                    case "barrel": mesh = Models.Barrel(); break;
+                    case "cup": mesh = Models.Cup(); break;
+                    case "crushed": mesh = Models.CrushedCan(); break;
+                    default: mesh = Models.Can(); break;
+                }
+
+                _meshes[model] = mesh;
+            }
+
+            return mesh;
+        }
+
+        /// <summary>Own model for a cloned item, and its placeable piece (since 1.0 meads can be put down) gets our name.</summary>
+        private void Dress(CustomItem item, string model, string texture, float metallic, float smoothness, Color? glow, Sprite icon)
+        {
+            Piece piece = item.ItemPrefab.GetComponent<Piece>();
+            if (piece != null)
+            {
+                piece.m_name = item.ItemDrop.m_itemData.m_shared.m_name;
+                piece.m_description = item.ItemDrop.m_itemData.m_shared.m_description;
+                piece.m_icon = icon;
+            }
+
+            if (_customModels)
+            {
+                Visuals.ApplyItem(item.ItemPrefab, MeshFor(model), Visuals.ItemMaterial(texture, metallic, smoothness), glow);
+            }
         }
 
         private void Try(string what, Action action)
@@ -300,6 +349,7 @@ namespace KongStrong
 
             SE_Kong effect = CreateEffect(drink, icon, baseEffect);
             ItemManager.Instance.AddStatusEffect(new CustomStatusEffect(effect, false));
+            _effects[drink.Key] = effect;
 
             var itemConfig = new ItemConfig
             {
@@ -318,7 +368,12 @@ namespace KongStrong
 
             var item = new CustomItem(drink.PrefabName, basePrefab, itemConfig);
             item.ItemDrop.m_itemData.m_shared.m_consumeStatusEffect = effect;
-            item.ItemPrefab.transform.localScale *= drink.ModelScale;
+            if (!_customModels)
+            {
+                item.ItemPrefab.transform.localScale *= drink.ModelScale;
+            }
+
+            Dress(item, drink.Model, drink.Texture, drink.Metallic, drink.Smoothness, drink.Glow, icon);
             ItemManager.Instance.AddItem(item);
 
             if (drink.ReturnsEmpty)
@@ -432,7 +487,9 @@ namespace KongStrong
                 Amount = Mathf.Max(1, drink.Amount),
                 Requirements = ParseRequirements(drink.BasePrefabName, drink.Ingredients),
             };
-            ItemManager.Instance.AddItem(new CustomItem(drink.BasePrefabName, drink.FermenterBase, baseConfig));
+            var baseItem = new CustomItem(drink.BasePrefabName, drink.FermenterBase, baseConfig);
+            Dress(baseItem, "barrel", "tex_barrel", 0f, 0.25f, null, baseConfig.Icon);
+            ItemManager.Instance.AddItem(baseItem);
 
             ItemManager.Instance.AddItemConversion(new CustomItemConversion(new FermenterConversionConfig
             {
@@ -457,6 +514,7 @@ namespace KongStrong
             shared.m_itemType = ItemDrop.ItemData.ItemType.Material;
             shared.m_consumeStatusEffect = null;
             shared.m_food = shared.m_foodStamina = shared.m_foodEitr = 0f;
+            Dress(item, "crushed", "tex_empty", 0.5f, 0.45f, null, config.Icon);
             ItemManager.Instance.AddItem(item);
         }
 
@@ -481,6 +539,7 @@ namespace KongStrong
             shared.m_foodEitr = _skyrCup.Eitr;
             shared.m_foodBurnTime = _skyrCup.Duration;
             shared.m_foodRegen = _skyrCup.Regen;
+            Dress(item, "cup", "tex_skyrcup", 0f, 0.3f, null, config.Icon);
             ItemManager.Instance.AddItem(item);
             Logger.LogInfo("Added KongSkyrCup (cloned from QueensJam).");
         }
