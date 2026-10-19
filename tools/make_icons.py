@@ -124,7 +124,7 @@ def slab_text(d, xy, text, size, fill, stroke=0, stroke_fill=None, anchor="la", 
 
 def draw_can(palette, label):
     main, deep = PALETTES[palette]
-    left, right, top, bottom, lid = 166, 346, 22, 490, 30
+    left, right, top, bottom, lid = 166, 346, 22, 490, (30 if CLASSIC else 50)
     split = left + int((right - left) * 0.48)
 
     art = new_layer()
@@ -382,9 +382,9 @@ def valheimify(layer, seed):
     rgb = layer.convert("RGB")
 
     # muted, slightly warm and less contrasty
-    rgb = ImageEnhance.Color(rgb).enhance(0.68)
-    rgb = ImageEnhance.Contrast(rgb).enhance(0.9)
-    rgb = Image.blend(rgb, ImageChops.multiply(rgb, Image.new("RGB", (W, H), (255, 226, 178))), 0.45)
+    rgb = ImageEnhance.Color(rgb).enhance(0.88)
+    rgb = ImageEnhance.Contrast(rgb).enhance(0.92)
+    rgb = Image.blend(rgb, ImageChops.multiply(rgb, Image.new("RGB", (W, H), (255, 230, 186))), 0.35)
 
     # painterly smear: mode filter merges small details into flat strokes
     rgb = Image.blend(rgb, rgb.filter(ImageFilter.ModeFilter(9)), 0.55)
@@ -418,16 +418,32 @@ def valheimify(layer, seed):
     return out
 
 
+# Valheim shows bottles lying at an angle; degrees clockwise per icon in the painted style.
+TILT = {"sugarfree": 28, "classic": 28, "frost": 28, "toxic": 28, "eitr": 28, "skyr": 24, "xxl": 14,
+        "metbombe": 34, "skyrcup": 10, "metbombe_base": 6}
+
+# Magic drinks glow a little, like Valheim's resistance and eitr meads.
+GLOW = {"frost": (150, 220, 255), "toxic": (140, 255, 120), "eitr": (200, 140, 255)}
+
+
 def finish(layer, seed=0):
-    """Outline and soft drop shadow, like vanilla Valheim icons."""
+    """Classic: outline and drop shadow. Painted: tilted, no outline, optional glow, like vanilla icons."""
     if not CLASSIC:
+        layer = layer.rotate(-TILT.get(seed, 0), resample=Image.BICUBIC, center=(W // 2, H // 2))
         layer = valheimify(layer, seed)
+        out = new_layer()
+        if seed in GLOW:
+            glow = layer.getchannel("A").filter(ImageFilter.MaxFilter(21)).filter(ImageFilter.GaussianBlur(28))
+            out.paste(Image.new("RGBA", (W, H), GLOW[seed] + (150,)), (0, 0), glow)
+        out.alpha_composite(layer)
+        return out.resize((SIZE, SIZE), Image.LANCZOS)
+
     alpha = layer.getchannel("A")
-    outline = alpha.filter(ImageFilter.MaxFilter(11 if not CLASSIC else 13))
+    outline = alpha.filter(ImageFilter.MaxFilter(13))
     shadow = alpha.filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.GaussianBlur(10))
     out = new_layer()
     out.paste(Image.new("RGBA", (W, H), (0, 0, 0, 150)), (10, 12), shadow)
-    out.paste(Image.new("RGBA", (W, H), (12, 10, 8, 255) if CLASSIC else (34, 22, 12, 235)), (0, 0), outline)
+    out.paste(Image.new("RGBA", (W, H), (12, 10, 8, 255)), (0, 0), outline)
     out.alpha_composite(layer)
     return out.resize((SIZE, SIZE), Image.LANCZOS)
 
