@@ -47,6 +47,7 @@
     <Reference Include="$(ManagedDir)/assembly_utils.dll" Private="false" />
     <Reference Include="$(ManagedDir)/UnityEngine.PhysicsModule.dll" Private="false" />
     <Reference Include="$(ManagedDir)/UnityEngine.ImageConversionModule.dll" Private="false" />
+    <Reference Include="$(ManagedDir)/UnityEngine.AudioModule.dll" Private="false" />
     <Reference Include="$(ValheimDir)/BepInEx/core/BepInEx.dll" Private="false" />
     <Reference Include="$(ValheimDir)/BepInEx/core/0Harmony.dll" Private="false" />
     <Reference Include="$(PluginsDir)/ValheimModding-Jotunn/Jotunn.dll" Condition="Exists('$(PluginsDir)/ValheimModding-Jotunn/Jotunn.dll')" Private="false" />
@@ -55,6 +56,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Assets/*.png" LogicalName="KongStrong.%(Filename).png" />
+    <EmbeddedResource Include="Assets/*.wav" LogicalName="KongStrong.%(Filename).wav" />
     <None Remove="tools/**;Thunderstore/**;dist/**" />
   </ItemGroup>
 

@@ -112,6 +112,10 @@ namespace KongStrong
         private int _heartStaminaPenalty;
 
         private bool _dumpPrefabs;
+        private bool _shout;
+        private float _shoutVolume;
+        private string _shoutFile;
+        private GameObject _shoutSfx;
 
         /// <summary>Prefab name of the empty an item leaves behind, or null.</summary>
         internal static string EmptyFor(string itemToken)
@@ -169,6 +173,14 @@ namespace KongStrong
                 "Slower health regeneration during heart racing, in percent.").Value;
             _heartStaminaPenalty = Config.Bind("HeartRacing", "StaminaRegenPenaltyPercent", 25,
                 "Slower stamina regeneration during heart racing, in percent.").Value;
+
+            _shout = Config.Bind("Sound", "Shout", true,
+                "Every Kong drink is followed by a shouted \"D K!\".").Value;
+            _shoutVolume = Config.Bind("Sound", "ShoutVolume", 0.8f,
+                new BepInEx.Configuration.ConfigDescription("Volume of the shout.", new BepInEx.Configuration.AcceptableValueRange<float>(0f, 1f))).Value;
+            _shoutFile = Config.Bind("Sound", "CustomShoutFile", "KongStrong/shout.wav",
+                "Your own 16 bit PCM WAV instead of the built-in shout, relative to BepInEx/config or absolute. " +
+                "Only played on this PC; the mod never distributes it.").Value;
 
             _dumpPrefabs = Config.Bind("Debug", "DumpPrefabs", false,
                 "Logs the structure of some vanilla prefabs once at startup (development aid).").Value;
@@ -349,14 +361,41 @@ namespace KongStrong
             AddResistance(mods, HitData.DamageType.Poison, drink.PoisonResistance);
             effect.m_mods = mods;
 
-            // Reuse the drinking sound and particles of the mead we cloned.
+            // Reuse the drinking sound and particles of the mead we cloned, plus the shout.
             if (baseEffect != null)
             {
-                effect.m_startEffects = baseEffect.m_startEffects;
+                if (_shout && _shoutSfx == null)
+                {
+                    Try("the shout", () => _shoutSfx = Sounds.CreateSfx("sfx_kong_dk", LoadShout(),
+                        baseEffect.m_startEffects, _shoutVolume, 0.35f));
+                }
+
+                effect.m_startEffects = _shout ? Sounds.With(baseEffect.m_startEffects, _shoutSfx) : baseEffect.m_startEffects;
                 effect.m_stopEffects = baseEffect.m_stopEffects;
             }
 
             return effect;
+        }
+
+        private AudioClip LoadShout()
+        {
+            string path = string.IsNullOrEmpty(_shoutFile) ? null
+                : System.IO.Path.IsPathRooted(_shoutFile) ? _shoutFile : System.IO.Path.Combine(BepInEx.Paths.ConfigPath, _shoutFile);
+            if (path != null && System.IO.File.Exists(path))
+            {
+                try
+                {
+                    AudioClip custom = Sounds.LoadWavFile(path);
+                    Logger.LogInfo($"Using your own shout from {path}.");
+                    return custom;
+                }
+                catch (Exception e)
+                {
+                    Logger.LogWarning($"Could not read {path} ({e.Message}), using the built-in shout.");
+                }
+            }
+
+            return Sounds.LoadWav("dk");
         }
 
         private static void AddResistance(List<HitData.DamageModPair> mods, HitData.DamageType type, HitData.DamageModifier modifier)
