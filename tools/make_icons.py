@@ -279,8 +279,8 @@ def draw_empty():
 
 
 def draw_cup():
-    """Skyr cup with foil lid and the gorilla."""
-    main, dark = (70, 140, 214), (14, 52, 104)
+    """Plain Skyr cup: white and blue with a cream swirl, no Kong branding."""
+    main, dark = (52, 116, 196), (14, 52, 104)
     top, bottom = 150, 440
     layer = new_layer()
     mask = Image.new("L", (W, H), 0)
@@ -289,12 +289,17 @@ def draw_cup():
     ad = ImageDraw.Draw(art)
     ad.rectangle([0, 0, W, H], fill=(246, 246, 240))
     ad.rectangle([0, 270, W, H], fill=main)
-    gorilla = draw_full_face("blue")
-    gorilla = gorilla.resize((180, int(180 * gorilla.height / gorilla.width)), Image.LANCZOS)
-    art.alpha_composite(gorilla, (256 - 90, 356 - gorilla.height // 2))
+    # cream swirl on the blue part
+    cream, shadow = (252, 252, 246), (196, 210, 228)
+    for (x0, y0, x1, y1, c) in ((180, 352, 332, 404, shadow), (176, 344, 336, 396, cream),
+                                (196, 318, 316, 366, shadow), (192, 312, 320, 360, cream),
+                                (218, 290, 294, 330, cream)):
+        ad.ellipse([x0, y0, x1, y1], fill=c)
+    ad.polygon([(244, 268), (268, 300), (232, 304)], fill=cream)
+    ad.arc([204, 322, 300, 352], 200, 340, fill=shadow, width=6)
     font = ImageFont.truetype(FONT_HEAVY, 64)
     tb = ad.textbbox((0, 0), "SKYR", font=font)
-    ad.text((256 - (tb[2] + tb[0]) // 2, 212 - (tb[3] + tb[1]) // 2), "SKYR", font=font, fill=(16, 22, 34))
+    ad.text((256 - (tb[2] + tb[0]) // 2, 212 - (tb[3] + tb[1]) // 2), "SKYR", font=font, fill=dark)
     ad.rectangle([0, 262, W, 274], fill=dark)
     layer.paste(art, (0, 0), mask)
     layer = shade_cylinder(layer, 120, 392, 0.4)
