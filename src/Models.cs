@@ -265,10 +265,15 @@ namespace KongStrong
         public static Mesh FridgeDoor() => Box("kong_fridge_door", new Vector3(-FridgeWidth / 2, FridgeHeight / 2, DoorThickness / 2),
             new Vector3(FridgeWidth, FridgeHeight, DoorThickness), FridgeDoorUv, FridgeSide, FridgeSide, FridgeSide, FridgeTop, FridgeTop);
 
-        // deposit machine atlas: front x 0-0.5 full height, side x 0.5-1 top half, top x 0.5-1 bottom half
-        public static Mesh Automat() => Box("kong_automat", new Vector3(0f, 0.95f, 0f), new Vector3(1.0f, 1.9f, 0.8f),
-            new Rect(0f, 0f, 0.5f, 1f), new Rect(0.5f, 0.5f, 0.5f, 0.5f), new Rect(0.5f, 0.5f, 0.5f, 0.5f),
-            new Rect(0.5f, 0.5f, 0.5f, 0.5f), new Rect(0.5f, 0f, 0.5f, 0.5f), new Rect(0.5f, 0f, 0.5f, 0.5f));
+        // deposit machine atlas (1024 x 1024, see make_textures.py): front x 0-0.5, side and back x 0.5-0.92 (both full
+        // height, same aspect as the 1.0 x 1.9 x 0.8 m body), plain grey x 0.94-1 for top and bottom
+        public static Mesh Automat()
+        {
+            var front = new Rect(0f, 0f, 0.5f, 1f);
+            var side = new Rect(0.5f, 0f, 0.42f, 1f);
+            var flat = new Rect(0.96f, 0.3f, 0.03f, 0.3f);
+            return Box("kong_automat", new Vector3(0f, 0.95f, 0f), new Vector3(1.0f, 1.9f, 0.8f), front, side, side, side, flat, flat);
+        }
 
         /// <summary>Cans of one row of the pyramid (rows 0-3 have 4, 3, 2, 1 cans), 10 empties in total.</summary>
         public static Mesh PyramidRow(int row)

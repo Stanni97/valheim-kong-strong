@@ -242,30 +242,58 @@ def tex_fridge():
 
 # ---------------------------------------------------------------- deposit machine atlas: 512 x 512
 # front x 0-256 (full height), side x 256-512 y 0-256, top x 256-512 y 256-512.
+# ---------------------------------------------------------------- deposit machine atlas: 1024 x 1024
+# Sized to the 1.0 x 1.9 x 0.8 m body so nothing is stretched:
+#   front  x 0-512,  full height (aspect 0.5, the box is 1.0 : 1.9)
+#   side   x 512-942, full height (aspect 0.42, the box is 0.8 : 1.9), also used for the back
+#   flat   x 960-1024 plain grey, used for top and bottom
+AUTOMAT_FRONT = (0, 0, 512, 1024)
+AUTOMAT_SIDE = (512, 0, 942, 1024)
+
+
 def tex_automat():
-    w = h = 512
+    w = h = 1024
     main, deep = mi.PALETTES["blue"]
-    img = Image.new("RGBA", (w, h), (40, 44, 52, 255))
+    body, edge = (52, 58, 70), (22, 26, 32)
+    img = Image.new("RGBA", (w, h), (64, 68, 78, 255))
     d = ImageDraw.Draw(img)
-    # front
-    d.rectangle([0, 0, 255, 511], fill=(46, 52, 62))
-    d.rectangle([14, 16, 241, 96], fill=(250, 214, 60))
-    mi.slab_text(d, (128, 56), "PFAND", 50, mi.BLACK, anchor="mm", max_w=210)
-    d.rectangle([14, 110, 241, 300], fill=mi.BLACK)
-    d.rectangle([14, 110, 100, 300], fill=main)
-    face = draw_half_face("blue").resize((120, int(120 * GH / GW)), Image.LANCZOS)
-    paste_clipped(img, face, (100 - 120, 205 - face.height // 2), [14, 110, 100, 300])
-    word = mi.fit(mi.metallic_text("KONG", main, deep).rotate(90, expand=True), 241 - 100 - 24, 176)
-    img.alpha_composite(word, (100 + (141 - word.width) // 2, 117))
-    d.rounded_rectangle([60, 330, 196, 400], radius=34, fill=(10, 10, 14), outline=(150, 154, 164), width=6)
-    d.ellipse([92, 346, 164, 384], fill=(30, 200, 90))
-    mi.slab_text(d, (128, 432), "LEERGUT", 26, (220, 224, 230), anchor="mm", max_w=220)
-    d.rectangle([40, 462, 216, 492], fill=(20, 22, 26), outline=(150, 154, 164), width=3)
-    # side
-    d.rectangle([256, 0, 511, 255], fill=main)
-    d.rectangle([384, 0, 511, 255], fill=mi.BLACK)
-    # top
-    d.rectangle([256, 256, 511, 511], fill=(70, 74, 82))
+
+    # ---- front
+    d.rectangle([0, 0, 511, 1023], fill=body)
+    d.rectangle([0, 0, 511, 1023], outline=edge, width=8)
+    d.rectangle([24, 24, 487, 190], fill=(250, 214, 60), outline=edge, width=6)           # PFAND sign
+    mi.slab_text(d, (256, 107), "PFAND", 110, mi.BLACK, anchor="mm", max_w=430)
+    d.rectangle([24, 214, 487, 654], fill=mi.BLACK, outline=edge, width=6)                # advert panel
+    d.rectangle([24, 214, 200, 654], fill=main)
+    face = draw_half_face("blue")
+    fh = 420
+    face = face.resize((int(fh * GW / GH), fh), Image.LANCZOS)
+    paste_clipped(img, face, (200 - face.width, 654 - fh - 4), [24, 214, 200, 654])
+    word = mi.fit(mi.metallic_text("KONG", main, deep).rotate(90, expand=True), 250, 400)
+    img.alpha_composite(word, (200 + (250 - word.width) // 2 + 18, 224))
+    mi.slab_text(d, (356, 636), "WILD POWER", 26, main, anchor="mm", max_w=280)
+    # scanner: dark slot with a green light and a laser line
+    d.rounded_rectangle([96, 690, 416, 800], radius=54, fill=(10, 10, 14), outline=(160, 164, 174), width=8)
+    d.rounded_rectangle([196, 726, 316, 764], radius=19, fill=(30, 200, 90))
+    d.line([(120, 745), (392, 745)], fill=(255, 70, 60), width=4)
+    mi.slab_text(d, (256, 840), "LEERGUT", 52, (226, 230, 236), anchor="mm", max_w=430)
+    # return tray with a flap
+    d.rectangle([64, 880, 448, 984], fill=(14, 16, 20), outline=(160, 164, 174), width=6)
+    d.rectangle([84, 900, 428, 964], fill=(30, 34, 42))
+    d.line([(84, 932), (428, 932)], fill=(80, 86, 98), width=4)
+
+    # ---- side (also the back)
+    d.rectangle([512, 0, 941, 1023], fill=main)
+    d.rectangle([512, 0, 941, 1023], outline=edge, width=8)
+    d.rectangle([700, 0, 941, 1023], fill=mi.BLACK)
+    long_word = mi.fit(mi.metallic_text("KONG", main, deep).rotate(90, expand=True), 220, 760)
+    img.alpha_composite(long_word, (700 + (241 - long_word.width) // 2, 120))
+    mi.slab_text(d, (820, 930), "WILD POWER", 34, main, anchor="mm", max_w=220)
+    d.rectangle([512, 0, 941, 60], fill=(250, 214, 60))
+    d.rectangle([512, 964, 941, 1023], fill=(250, 214, 60))
+
+    # ---- flat grey for top and bottom
+    d.rectangle([960, 0, 1023, 1023], fill=(74, 78, 88))
     return img
 
 
@@ -302,7 +330,7 @@ def icon_fridge():
 
 def icon_automat():
     tex = tex_automat()
-    return _box_icon(tex.crop((0, 0, 256, 512)), tex.crop((256, 0, 512, 256)), (70, 74, 82, 255), x0=160, x1=340)
+    return _box_icon(tex.crop(AUTOMAT_FRONT), tex.crop(AUTOMAT_SIDE), (74, 78, 88, 255), x0=160, x1=340)
 
 
 def icon_pyramid():
