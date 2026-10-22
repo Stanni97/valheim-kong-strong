@@ -152,7 +152,10 @@ namespace KongStrong
         private static void AddAutomat(Func<string, string, RequirementConfig[]> parse)
         {
             GameObject prefab = FromChest("piece_kong_automat", false, out Transform model);
-            Visuals.AddPart(model, "body", Models.Automat(), Visuals.PieceMaterial("tex_automat"), Vector3.zero, Quaternion.identity);
+            // German lettering for a German game, English (DEPOSIT / EMPTIES) for every other language; needs a restart to change.
+            bool german = Localization.instance != null && Localization.instance.GetSelectedLanguage() == "German";
+            Visuals.AddPart(model, "body", Models.Automat(), Visuals.PieceMaterial(german ? "tex_automat" : "tex_automat_en"),
+                Vector3.zero, Quaternion.identity);
             prefab.AddComponent<KongDepositMachine>();
             Add(prefab, "piece_kong_automat", "automat", PieceCategories.Misc, CraftingStations.Workbench,
                 parse("piece_kong_automat", Automat.Ingredients));

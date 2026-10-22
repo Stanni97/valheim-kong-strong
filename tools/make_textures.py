@@ -251,7 +251,9 @@ AUTOMAT_FRONT = (0, 0, 512, 1024)
 AUTOMAT_SIDE = (512, 0, 942, 1024)
 
 
-def tex_automat():
+def tex_automat(english=False):
+    """german: PFAND / LEERGUT (tex_automat), english: DEPOSIT / EMPTIES (tex_automat_en)."""
+    sign, slot_label = ("DEPOSIT", "EMPTIES") if english else ("PFAND", "LEERGUT")
     w = h = 1024
     main, deep = mi.PALETTES["blue"]
     body, edge = (52, 58, 70), (22, 26, 32)
@@ -262,7 +264,7 @@ def tex_automat():
     d.rectangle([0, 0, 511, 1023], fill=body)
     d.rectangle([0, 0, 511, 1023], outline=edge, width=8)
     d.rectangle([24, 24, 487, 190], fill=(250, 214, 60), outline=edge, width=6)           # PFAND sign
-    mi.slab_text(d, (256, 107), "PFAND", 110, mi.BLACK, anchor="mm", max_w=430)
+    mi.slab_text(d, (256, 107), sign, 110, mi.BLACK, anchor="mm", max_w=430)
     d.rectangle([24, 214, 487, 654], fill=mi.BLACK, outline=edge, width=6)                # advert panel
     d.rectangle([24, 214, 200, 654], fill=main)
     face = draw_half_face("blue")
@@ -276,7 +278,7 @@ def tex_automat():
     d.rounded_rectangle([96, 690, 416, 800], radius=54, fill=(10, 10, 14), outline=(160, 164, 174), width=8)
     d.rounded_rectangle([196, 726, 316, 764], radius=19, fill=(30, 200, 90))
     d.line([(120, 745), (392, 745)], fill=(255, 70, 60), width=4)
-    mi.slab_text(d, (256, 840), "LEERGUT", 52, (226, 230, 236), anchor="mm", max_w=430)
+    mi.slab_text(d, (256, 840), slot_label, 52, (226, 230, 236), anchor="mm", max_w=430)
     # return tray with a flap
     d.rectangle([64, 880, 448, 984], fill=(14, 16, 20), outline=(160, 164, 174), width=6)
     d.rectangle([84, 900, 428, 964], fill=(30, 34, 42))
@@ -378,6 +380,7 @@ TEXTURES = {
     "tex_xxl": tex_xxl,
     "tex_fridge": tex_fridge,
     "tex_automat": tex_automat,
+    "tex_automat_en": lambda: tex_automat(english=True),
     "tex_wood": tex_wood,
 }
 

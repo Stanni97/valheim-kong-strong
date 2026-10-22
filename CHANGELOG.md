@@ -7,6 +7,7 @@
 - The textures of the build pieces repeated several times because Valheim's piece shader tiles them. Build pieces now use a plain Standard material, and the deposit machine texture is drawn to the machine's proportions (size unchanged).
 - Empties are now an intact grey can in full size instead of a crushed one, so the deposit machine can scan them.
 - The "D K!" shout is on by default and louder (volume 1, raised to full scale plus `ShoutBoost`). The mod no longer ships any sound: the shout only plays with your own `shout.wav`. Values still at the 1.2.0 default switch at startup.
+- The deposit machine has English lettering (DEPOSIT / EMPTIES) for every game language except German (PFAND / LEERGUT).
 - README is now English first, with the German version in `README.de.md`.
 
 ## 1.2.0
