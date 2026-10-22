@@ -28,7 +28,7 @@ Es wirkt immer nur ein Kong-Drink auf einmal, und während des Zuckercrashs kann
 - **Kraft-Animation:** Beim Trinken hebst du die Arme wie bei einer Kraft der Verlassenen, samt Eikthyr-Leuchten ohne dessen Ton. Deine echte Kraft und ihre Abklingzeit bleiben unberührt.
 - **Koffein-Toleranz:** Mehrere Drinks innerhalb von 15 Minuten wirken schwächer (der zweite zu 50 %, jeder weitere zu 25 %). Ab dem dritten gibt es 2 Minuten **Herzrasen** mit langsamerer Regeneration.
 - **Zu wach zum Schlafen:** Mit aktivem Kong-Buff verweigert dein Bett den Schlaf.
-- **Leergut:** Dosen und Flaschen hinterlassen leeres Leergut. Daraus baust du die Dosenpyramide, oder du tauschst es am Pfandautomaten gegen Münzen.
+- **Leergut:** Dosen und Flaschen hinterlassen unbeschädigtes Leergut (nicht zerdrückt, sonst scannt der Pfandautomat es nicht). Daraus baust du die Dosenpyramide, oder du tauschst es am Pfandautomaten gegen Münzen.
 - **Eigene Modelle:** Dosen, Flaschen, Kanister, Becher und Fass sind eigene Modelle, in der Config mit `CustomModels = false` auf die Met-Flaschen des Spiels umschaltbar.
 - **„D K!“-Ruf:** Nach den Kong-Strong-Dosen kann ein eigener Ruf kommen (`[Sound] Shout`, standardmäßig an). Die Mod liefert **keinen** Ton mit: Lege eine eigene WAV-Datei (16 Bit PCM) unter `BepInEx/config/KongStrong/shout.wav` ab, sie bleibt auf deinem Rechner. Ohne Datei bleibt es still. `ShoutBoost` macht den Ton lauter.
 

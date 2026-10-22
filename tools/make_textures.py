@@ -90,12 +90,8 @@ def tex_can(palette, label):
 
 
 def tex_empty():
-    img = ImageOps.grayscale(tex_can("blue", "SUGAR\nFREE").convert("RGB")).convert("RGBA")
-    d = ImageDraw.Draw(img)
-    for i in range(9):                                   # creases of the crushed can
-        x = 30 + i * 56
-        d.line([(x, 70), (x + 30, 190), (x - 10, 300)], fill=(70, 70, 76, 255), width=6)
-    return img
+    """Grey version of the can: intact, so the deposit machine can scan the barcode."""
+    return ImageOps.grayscale(tex_can("blue", "SUGAR\nFREE").convert("RGB")).convert("RGBA")
 
 
 # ---------------------------------------------------------------- Skyr bottle: 512 x 512

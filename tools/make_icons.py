@@ -270,15 +270,8 @@ def grey(layer):
 
 
 def draw_empty():
-    """Crushed, empty grey can: the Leergut."""
-    can = grey(draw_can("blue", "SUGAR\nFREE"))
-    can = can.resize((W, int(H * 0.62)), Image.LANCZOS)
-    out = new_layer()
-    out.alpha_composite(can, (0, (H - can.height) // 2 + 40))
-    d = ImageDraw.Draw(out)
-    for y in (215, 268, 318):                                               # dents
-        d.line([(170, y), (240, y + 10), (300, y - 6), (344, y + 6)], fill=(70, 70, 76, 255), width=7)
-    return out.rotate(28, resample=Image.BICUBIC, center=(256, 256))
+    """Intact empty can in grey: the Leergut. Not crushed, or the deposit machine could not scan it."""
+    return grey(draw_can("blue", "SUGAR\nFREE"))
 
 
 def draw_cup():

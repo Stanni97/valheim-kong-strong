@@ -570,7 +570,7 @@ namespace KongStrong
             shared.m_itemType = ItemDrop.ItemData.ItemType.Material;
             shared.m_consumeStatusEffect = null;
             shared.m_food = shared.m_foodStamina = shared.m_foodEitr = 0f;
-            Dress(item, "crushed", "tex_empty", 0.5f, 0.45f, null, config.Icon);
+            Dress(item, "can", "tex_empty", 0.6f, 0.5f, null, config.Icon);
             ItemManager.Instance.AddItem(item);
         }
 

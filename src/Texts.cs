@@ -71,7 +71,7 @@ namespace KongStrong
                 { "item_kong_skyrcup_desc", "Thick, creamy and full of protein. Proper food, not a drink." },
 
                 { "item_kong_empty", "Kong empties" },
-                { "item_kong_empty_desc", "Empty can or bottle. Build something with it or bring it to a deposit machine." },
+                { "item_kong_empty_desc", "Empty can or bottle, undamaged so the barcode still scans. Build something with it or bring it to a deposit machine." },
 
                 { "se_kong_stop", "The energy rush wears off." },
                 { "se_kong_crash", "Sugar Crash" },
@@ -157,7 +157,7 @@ namespace KongStrong
                 { "item_kong_skyrcup_desc", "Dick, cremig und voller Protein. Richtiges Essen, kein Drink." },
 
                 { "item_kong_empty", "Kong-Leergut" },
-                { "item_kong_empty_desc", "Leere Dose oder Flasche. Daraus lässt sich etwas bauen, oder du bringst sie zum Pfandautomaten." },
+                { "item_kong_empty_desc", "Leere Dose oder Flasche, unbeschädigt, damit der Pfand noch gescannt wird. Daraus lässt sich etwas bauen, oder du bringst sie zum Pfandautomaten." },
 
                 { "se_kong_stop", "Der Energiekick lässt nach." },
                 { "se_kong_crash", "Zuckercrash" },
