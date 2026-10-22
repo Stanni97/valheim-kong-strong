@@ -410,7 +410,7 @@ def valheimify(layer, seed):
 
 
 # Valheim shows bottles lying at an angle; degrees clockwise per icon in the painted style.
-TILT = {"sugarfree": 28, "classic": 28, "frost": 28, "toxic": 28, "eitr": 28, "skyr": 24, "xxl": 14,
+TILT = {"empty": 28, "sugarfree": 28, "classic": 28, "frost": 28, "toxic": 28, "eitr": 28, "skyr": 24, "xxl": 14,
         "metbombe": 34, "skyrcup": 10, "metbombe_base": 6}
 
 # Magic drinks glow a little, like Valheim's resistance and eitr meads.
