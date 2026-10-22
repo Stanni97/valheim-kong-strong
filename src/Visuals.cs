@@ -25,11 +25,13 @@ namespace KongStrong
             return Prepare(template != null ? new Material(template) : new Material(Shader.Find("Standard")), texture, metallic, smoothness);
         }
 
-        /// <summary>Valheim's Custom/Piece material (wetness, snow, wear), cloned from the wooden chest.</summary>
+        /// <summary>
+        /// Plain Standard material for build pieces. Valheim's Custom/Piece shader repeats the texture
+        /// (the atlases showed up tiled many times), so pieces use the same simple material as the items.
+        /// </summary>
         public static Material PieceMaterial(string texture)
         {
-            Material template = PrefabManager.Instance.GetPrefab("piece_chest_wood")?.GetComponentInChildren<MeshRenderer>(true)?.sharedMaterial;
-            return Prepare(template != null ? new Material(template) : new Material(Shader.Find("Standard")), texture, 0f, 0.2f);
+            return ItemMaterial(texture, 0f, 0.25f);
         }
 
         private static Material Prepare(Material material, string texture, float metallic, float smoothness)
