@@ -28,6 +28,31 @@ namespace KongStrong
             }
         }
 
+        /// <summary>Raises the clip to near full scale, so the shout is as loud as the game's mixer allows.</summary>
+        public static AudioClip Normalize(AudioClip clip)
+        {
+            var samples = new float[clip.samples * clip.channels];
+            clip.GetData(samples, 0);
+            float peak = 0f;
+            foreach (float s in samples)
+            {
+                peak = Math.Max(peak, Math.Abs(s));
+            }
+
+            if (peak > 0.001f)
+            {
+                float gain = 0.98f / peak;
+                for (int i = 0; i < samples.Length; i++)
+                {
+                    samples[i] *= gain;
+                }
+
+                clip.SetData(samples, 0);
+            }
+
+            return clip;
+        }
+
         /// <summary>Reads a 16 bit PCM WAV file from disk into an AudioClip.</summary>
         public static AudioClip LoadWavFile(string path)
         {

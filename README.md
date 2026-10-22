@@ -30,7 +30,7 @@ Es wirkt immer nur ein Kong-Drink auf einmal, und während des Zuckercrashs kann
 - **Zu wach zum Schlafen:** Mit aktivem Kong-Buff verweigert dein Bett den Schlaf.
 - **Leergut:** Dosen und Flaschen hinterlassen leeres Leergut. Daraus baust du die Dosenpyramide, oder du tauschst es am Pfandautomaten gegen Münzen.
 - **Eigene Modelle:** Dosen, Flaschen, Kanister, Becher und Fass sind eigene Modelle, in der Config mit `CustomModels = false` auf die Met-Flaschen des Spiels umschaltbar.
-- **„D K!“-Ruf:** Optional (`[Sound] Shout`, standardmäßig aus) ruft es nach den Kong-Strong-Dosen „D K!“. Mitgeliefert ist ein selbst synthetisierter Ruf. Eine eigene WAV-Datei (16 Bit PCM) legst du unter `BepInEx/config/KongStrong/shout.wav` ab, sie bleibt auf deinem Rechner.
+- **„D K!“-Ruf:** Nach den Kong-Strong-Dosen ruft es „D K!“ (`[Sound] Shout`, standardmäßig an, abschaltbar). Mitgeliefert ist ein selbst synthetisierter Ruf. Eine eigene WAV-Datei (16 Bit PCM) legst du unter `BepInEx/config/KongStrong/shout.wav` ab, sie bleibt auf deinem Rechner.
 
 ## Herstellung
 

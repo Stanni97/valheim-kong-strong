@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.1
+
+- Pfandautomat deutlich größer. Die Textur des Automaten wiederholte sich senkrecht, weil das kopierte Material seine Kachelung mitbrachte; sie wird jetzt auf 1:1 gesetzt (betrifft alle Baustücke).
+- Der „D K!“-Ruf ist jetzt standardmäßig an und lauter (Lautstärke 1, der Ton wird auf volle Aussteuerung angehoben). Werte, die noch auf dem 1.2.0-Standard stehen, wechseln beim Start automatisch.
+
 ## 1.2.0
 
 - Neue Drinks: Frost, Toxic und Eitr Edition (Resistenzen bzw. Eitr), Kong-Met-Bombe (Gärbottich) und der Skyr-Becher als Essen.

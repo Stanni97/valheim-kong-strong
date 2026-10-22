@@ -36,6 +36,9 @@ namespace KongStrong
         {
             material.name = "kong_" + texture;
             material.mainTexture = Icons.Texture(texture);
+            // The cloned vanilla material may tile or offset its texture; our atlases need exactly 1:1.
+            material.mainTextureScale = Vector2.one;
+            material.mainTextureOffset = Vector2.zero;
             if (material.HasProperty("_Color"))
             {
                 material.color = Color.white;

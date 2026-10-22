@@ -19,7 +19,7 @@ namespace KongStrong
         public const string PluginGUID = "felix.kongstrong";
         public const string PluginName = "Kong Strong Energy";
         // Keep in sync with <Version> in KongStrong.csproj.
-        public const string PluginVersion = "1.2.0";
+        public const string PluginVersion = "1.2.1";
 
         // Shared by all drinks, the crash and heart racing, so only one of them can be active at a time.
         private const string StatusCategory = "kongstrong";
@@ -179,14 +179,16 @@ namespace KongStrong
             _heartStaminaPenalty = Config.Bind("HeartRacing", "StaminaRegenPenaltyPercent", 25,
                 "Slower stamina regeneration during heart racing, in percent.").Value;
 
-            _shout = Config.Bind("Sound", "Shout", false,
-                "Every Kong Strong drink (cans, XXL, tap) is followed by a shouted \"D K!\".").Value;
+            // 1.2.0 shipped with the shout off and 0.8; values still at that default move to the new one on update.
+            _shout = ConfigBinder.Bind(Config, "Sound", "Shout", true,
+                "Every Kong Strong drink (cans, XXL, tap) is followed by a shouted \"D K!\".", new[] { false });
             _customModels = Config.Bind("General", "CustomModels", true,
                 "Cans, bottles and the canister get their own models. Off: they look like the vanilla meads.").Value;
             SE_Kong.PowerAnimation = Config.Bind("General", "PowerAnimation", true,
                 "Drinking Kong raises your arms like activating a Forsaken power, with Eikthyr's glow.").Value;
-            _shoutVolume = Config.Bind("Sound", "ShoutVolume", 0.8f,
-                new BepInEx.Configuration.ConfigDescription("Volume of the shout.", new BepInEx.Configuration.AcceptableValueRange<float>(0f, 1f))).Value;
+            _shoutVolume = ConfigBinder.Bind(Config, "Sound", "ShoutVolume", 1f,
+                new BepInEx.Configuration.ConfigDescription("Volume of the shout (the clip itself is raised to full level).",
+                    new BepInEx.Configuration.AcceptableValueRange<float>(0f, 1f)), new[] { 0.8f });
             _shoutFile = Config.Bind("Sound", "CustomShoutFile", "KongStrong/shout.wav",
                 "Your own 16 bit PCM WAV instead of the built-in shout, relative to BepInEx/config or absolute. " +
                 "Only played on this PC; the mod never distributes it.").Value;
@@ -497,7 +499,7 @@ namespace KongStrong
                 {
                     AudioClip custom = Sounds.LoadWavFile(path);
                     Logger.LogInfo($"Using your own shout from {path}.");
-                    return custom;
+                    return Sounds.Normalize(custom);
                 }
                 catch (Exception e)
                 {
@@ -505,7 +507,7 @@ namespace KongStrong
                 }
             }
 
-            return Sounds.LoadWav("dk");
+            return Sounds.Normalize(Sounds.LoadWav("dk"));
         }
 
         private static void AddResistance(List<HitData.DamageModPair> mods, HitData.DamageType type, HitData.DamageModifier modifier)
