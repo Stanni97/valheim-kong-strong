@@ -266,7 +266,7 @@ namespace KongStrong
             new Vector3(FridgeWidth, FridgeHeight, DoorThickness), FridgeDoorUv, FridgeSide, FridgeSide, FridgeSide, FridgeTop, FridgeTop);
 
         // deposit machine atlas: front x 0-0.5 full height, side x 0.5-1 top half, top x 0.5-1 bottom half
-        public static Mesh Automat() => Box("kong_automat", new Vector3(0f, 1.3f, 0f), new Vector3(1.4f, 2.6f, 1.1f),
+        public static Mesh Automat() => Box("kong_automat", new Vector3(0f, 0.95f, 0f), new Vector3(1.0f, 1.9f, 0.8f),
             new Rect(0f, 0f, 0.5f, 1f), new Rect(0.5f, 0.5f, 0.5f, 0.5f), new Rect(0.5f, 0.5f, 0.5f, 0.5f),
             new Rect(0.5f, 0.5f, 0.5f, 0.5f), new Rect(0.5f, 0f, 0.5f, 0.5f), new Rect(0.5f, 0f, 0.5f, 0.5f));
 

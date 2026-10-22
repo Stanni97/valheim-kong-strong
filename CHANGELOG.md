@@ -2,7 +2,7 @@
 
 ## 1.2.1
 
-- Pfandautomat deutlich größer. Die Textur der Baustücke wiederholte sich mehrfach, weil Valheims Piece-Shader sie kachelt; die Baustücke nutzen jetzt ein einfaches Standard-Material (Kühlschrank, Pyramide, Automat, Zapfstelle).
+- Die Textur der Baustücke wiederholte sich mehrfach (Pfandautomat in unveränderter Größe), weil Valheims Piece-Shader sie kachelt; die Baustücke nutzen jetzt ein einfaches Standard-Material (Kühlschrank, Pyramide, Automat, Zapfstelle).
 - Das Leergut ist jetzt eine unbeschädigte graue Dose in voller Größe statt einer zerdrückten.
 - Der „D K!“-Ruf ist jetzt standardmäßig an und lauter (Lautstärke 1, Anhebung auf volle Aussteuerung plus `ShoutBoost`). Die Mod liefert keinen Ton mehr mit, der Ruf spielt nur mit einer eigenen `shout.wav`. Werte auf dem 1.2.0-Standard wechseln beim Start automatisch.
 
