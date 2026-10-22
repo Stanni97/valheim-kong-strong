@@ -119,6 +119,7 @@ namespace KongStrong
         private bool _shout;
         private float _shoutVolume;
         private string _shoutFile;
+        private float _shoutBoost;
         private GameObject _shoutSfx;
 
         /// <summary>Prefab name of the empty an item leaves behind, or null.</summary>
@@ -190,8 +191,11 @@ namespace KongStrong
                 new BepInEx.Configuration.ConfigDescription("Volume of the shout (the clip itself is raised to full level).",
                     new BepInEx.Configuration.AcceptableValueRange<float>(0f, 1f)), new[] { 0.8f });
             _shoutFile = Config.Bind("Sound", "CustomShoutFile", "KongStrong/shout.wav",
-                "Your own 16 bit PCM WAV instead of the built-in shout, relative to BepInEx/config or absolute. " +
-                "Only played on this PC; the mod never distributes it.").Value;
+                "Your own 16 bit PCM WAV for the shout, relative to BepInEx/config or absolute. " +
+                "The mod ships no sound; without this file nothing is played.").Value;
+            _shoutBoost = Config.Bind("Sound", "ShoutBoost", 2.5f,
+                new BepInEx.Configuration.ConfigDescription("Makes the shout louder than full scale allows by soft limiting (1 = off).",
+                    new BepInEx.Configuration.AcceptableValueRange<float>(1f, 8f))).Value;
 
             _dumpPrefabs = Config.Bind("Debug", "DumpPrefabs", false,
                 "Logs the structure of some vanilla prefabs once at startup (development aid).").Value;
@@ -478,8 +482,14 @@ namespace KongStrong
             {
                 if (_shout && _shoutSfx == null)
                 {
-                    Try("the shout", () => _shoutSfx = Sounds.CreateSfx("sfx_kong_dk", LoadShout(),
-                        baseEffect.m_startEffects, _shoutVolume, 0.35f));
+                    Try("the shout", () =>
+                    {
+                        AudioClip clip = LoadShout();
+                        if (clip != null)
+                        {
+                            _shoutSfx = Sounds.CreateSfx("sfx_kong_dk", clip, baseEffect.m_startEffects, _shoutVolume, 0.35f);
+                        }
+                    });
                 }
 
                 effect.m_startEffects = _shout && drink.Shout ? Sounds.With(baseEffect.m_startEffects, _shoutSfx) : baseEffect.m_startEffects;
@@ -498,16 +508,20 @@ namespace KongStrong
                 try
                 {
                     AudioClip custom = Sounds.LoadWavFile(path);
-                    Logger.LogInfo($"Using your own shout from {path}.");
-                    return Sounds.Normalize(custom);
+                    Logger.LogInfo($"Using your shout from {path} (boost x{_shoutBoost}).");
+                    return Sounds.Normalize(custom, _shoutBoost);
                 }
                 catch (Exception e)
                 {
-                    Logger.LogWarning($"Could not read {path} ({e.Message}), using the built-in shout.");
+                    Logger.LogWarning($"Could not read {path}: {e.Message}");
                 }
             }
+            else
+            {
+                Logger.LogInfo($"No shout file at {path}, so no \"D K!\". The mod ships none.");
+            }
 
-            return Sounds.Normalize(Sounds.LoadWav("dk"));
+            return null;
         }
 
         private static void AddResistance(List<HitData.DamageModPair> mods, HitData.DamageType type, HitData.DamageModifier modifier)

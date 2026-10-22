@@ -10,26 +10,8 @@ namespace KongStrong
     /// <summary>Sounds embedded in the DLL (Assets/*.wav), played through Valheim's own SFX objects.</summary>
     internal static class Sounds
     {
-        /// <summary>Reads a 16 bit PCM WAV resource into an AudioClip.</summary>
-        public static AudioClip LoadWav(string name)
-        {
-            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"KongStrong.{name}.wav"))
-            {
-                if (stream == null)
-                {
-                    throw new FileNotFoundException("Embedded sound missing: " + name);
-                }
-
-                using (var buffer = new MemoryStream())
-                {
-                    stream.CopyTo(buffer);
-                    return FromWav(name, buffer.ToArray());
-                }
-            }
-        }
-
         /// <summary>Raises the clip to near full scale, so the shout is as loud as the game's mixer allows.</summary>
-        public static AudioClip Normalize(AudioClip clip)
+        public static AudioClip Normalize(AudioClip clip, float boost = 1f)
         {
             var samples = new float[clip.samples * clip.channels];
             clip.GetData(samples, 0);
@@ -41,10 +23,12 @@ namespace KongStrong
 
             if (peak > 0.001f)
             {
-                float gain = 0.98f / peak;
+                // Full scale first, then push it into a soft limiter: louder on average, no hard clipping.
+                float gain = 0.98f / peak * Math.Max(1f, boost);
+                float norm = (float)Math.Tanh(Math.Max(1f, boost));
                 for (int i = 0; i < samples.Length; i++)
                 {
-                    samples[i] *= gain;
+                    samples[i] = boost <= 1f ? samples[i] * gain : (float)Math.Tanh(samples[i] * gain / 0.98f * 0.98f) / norm * 0.98f;
                 }
 
                 clip.SetData(samples, 0);

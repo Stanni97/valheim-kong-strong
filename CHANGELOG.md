@@ -3,7 +3,7 @@
 ## 1.2.1
 
 - Pfandautomat deutlich größer. Die Textur des Automaten wiederholte sich senkrecht, weil das kopierte Material seine Kachelung mitbrachte; sie wird jetzt auf 1:1 gesetzt (betrifft alle Baustücke).
-- Der „D K!“-Ruf ist jetzt standardmäßig an und lauter (Lautstärke 1, der Ton wird auf volle Aussteuerung angehoben). Werte, die noch auf dem 1.2.0-Standard stehen, wechseln beim Start automatisch.
+- Der „D K!“-Ruf ist jetzt standardmäßig an und lauter (Lautstärke 1, Anhebung auf volle Aussteuerung plus `ShoutBoost`). Die Mod liefert keinen Ton mehr mit, der Ruf spielt nur mit einer eigenen `shout.wav`. Werte auf dem 1.2.0-Standard wechseln beim Start automatisch.
 
 ## 1.2.0
 

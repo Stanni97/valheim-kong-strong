@@ -58,7 +58,6 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Assets/*.png" LogicalName="KongStrong.%(Filename).png" />
-    <EmbeddedResource Include="Assets/*.wav" LogicalName="KongStrong.%(Filename).wav" />
     <None Remove="tools/**;Thunderstore/**;dist/**" />
   </ItemGroup>
 

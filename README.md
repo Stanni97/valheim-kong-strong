@@ -30,7 +30,7 @@ Es wirkt immer nur ein Kong-Drink auf einmal, und während des Zuckercrashs kann
 - **Zu wach zum Schlafen:** Mit aktivem Kong-Buff verweigert dein Bett den Schlaf.
 - **Leergut:** Dosen und Flaschen hinterlassen leeres Leergut. Daraus baust du die Dosenpyramide, oder du tauschst es am Pfandautomaten gegen Münzen.
 - **Eigene Modelle:** Dosen, Flaschen, Kanister, Becher und Fass sind eigene Modelle, in der Config mit `CustomModels = false` auf die Met-Flaschen des Spiels umschaltbar.
-- **„D K!“-Ruf:** Nach den Kong-Strong-Dosen ruft es „D K!“ (`[Sound] Shout`, standardmäßig an, abschaltbar). Mitgeliefert ist ein selbst synthetisierter Ruf. Eine eigene WAV-Datei (16 Bit PCM) legst du unter `BepInEx/config/KongStrong/shout.wav` ab, sie bleibt auf deinem Rechner.
+- **„D K!“-Ruf:** Nach den Kong-Strong-Dosen kann ein eigener Ruf kommen (`[Sound] Shout`, standardmäßig an). Die Mod liefert **keinen** Ton mit: Lege eine eigene WAV-Datei (16 Bit PCM) unter `BepInEx/config/KongStrong/shout.wav` ab, sie bleibt auf deinem Rechner. Ohne Datei bleibt es still. `ShoutBoost` macht den Ton lauter.
 
 ## Herstellung
 
@@ -173,7 +173,7 @@ Das automatische Kopieren ins Spiel schaltest du mit `-p:InstallToGame=false` ab
 
 Bei einer neuen Version die Versionsnummer an zwei Stellen erhöhen: `<Version>` in `KongStrong.csproj` und `PluginVersion` in `src/KongStrongPlugin.cs`.
 
-Icons, Modell-Texturen und der eingebaute Ruf entstehen mit Python 3 (Pillow, numpy): `tools/make_icons.py` (Icons, `--classic` für den ersten, klaren Stil, den es auch fertig unter `Assets/backup-v1` gibt), `tools/make_textures.py` (Texturen der Modelle) und `tools/make_sound.py`. Der Gorilla kommt aus `tools/gorilla.py`, die Meshes baut `src/Models.cs` im Code. Als Schriften dienen standardmäßig Noto Sans Black und DejaVu Serif Bold. Andere Pfade setzt du über die Umgebungsvariablen `KONG_FONT_HEAVY` und `KONG_FONT_SLAB`.
+Icons, Modell-Texturen und der eingebaute Ruf entstehen mit Python 3 (Pillow, numpy): `tools/make_icons.py` (Icons, `--classic` für den ersten, klaren Stil, den es auch fertig unter `Assets/backup-v1` gibt) und `tools/make_textures.py` (Texturen der Modelle). Der Gorilla kommt aus `tools/gorilla.py`, die Meshes baut `src/Models.cs` im Code. Als Schriften dienen standardmäßig Noto Sans Black und DejaVu Serif Bold. Andere Pfade setzt du über die Umgebungsvariablen `KONG_FONT_HEAVY` und `KONG_FONT_SLAB`.
 
 ```bash
 python3 tools/make_icons.py Assets 128
