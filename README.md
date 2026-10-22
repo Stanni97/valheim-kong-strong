@@ -1,159 +1,159 @@
-# Kong Strong Energy für Valheim
+# Kong Strong Energy for Valheim
 
-![Sugar Free](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/sugarfree.png) ![Urban Classic](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/classic.png) ![Skyr Energy](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/skyr.png) ![XXL-Kanister](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/xxl.png)
+**English** · [Deutsch](README.de.md)
 
-![Frost](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/frost.png) ![Toxic](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/toxic.png) ![Eitr](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/eitr.png) ![Met-Bombe](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/metbombe.png) ![Skyr-Becher](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/skyrcup.png) ![Kühlschrank](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/fridge.png) ![Dosenpyramide](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/pyramid.png) ![Pfandautomat](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/automat.png) ![Zapfstelle](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/tap.png)
+![Sugar Free](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/sugarfree.png) ![Urban Classic](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/classic.png) ![Skyr Energy](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/skyr.png) ![XXL canister](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/xxl.png)
 
-Ein Valheim-Mod mit Energydrinks im Stil von Kong Strong: mehr Ausdauer, mehr Tempo, Schutz vor Feuer, Frost und Gift, dazu eigene Modelle, Leergut mit Pfandautomat und Baustücke wie Kühlschrank und Zapfstelle.
+![Frost](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/frost.png) ![Toxic](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/toxic.png) ![Eitr](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/eitr.png) ![Mead bomb](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/metbombe.png) ![Skyr cup](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/skyrcup.png) ![Fridge](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/fridge.png) ![Can pyramid](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/pyramid.png) ![Deposit machine](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/automat.png) ![Tap](https://raw.githubusercontent.com/Stanni97/valheim-kong-strong/main/Assets/tap.png)
 
-## Die Drinks
+A Valheim mod with energy drinks in the style of Kong Strong: more stamina, more speed, protection from fire, frost and poison, plus own models, empties with a deposit machine and build pieces like a fridge and a tap.
 
-| Drink | Dauer | Wirkung |
+## The drinks
+
+| Drink | Duration | Effect |
 | --- | --- | --- |
-| **Kong Strong Sugar Free** (blau) | 5 Min. | +40 Sofort-Ausdauer, +50 % Ausdauer-Regeneration, +10 % Tempo, −25 % Ausdauerverbrauch beim Rennen und Springen |
-| **Kong Strong Urban Classic** (rot, mit Zucker) | 3 Min. | +80 Sofort-Ausdauer, +75 % Ausdauer-Regeneration, +15 % Tempo, −25 % beim Rennen und Springen. **Danach 1 Min. Zuckercrash:** −25 % Ausdauer-Regeneration, −5 % Tempo |
-| **Skyr Energy** (Protein-Drink) | 10 Min. | +20 Sofort-Ausdauer, +50 Tragkraft, +25 % Lebens- und Ausdauer-Regeneration |
-| **Kong Strong XXL** (18,9-L-Kanister) | 20 Min. | Wirkung wie Sugar Free, dazu **feuerfest** (halber Feuerschaden). Wiegt 19 kg und stapelt nicht |
+| **Kong Strong Sugar Free** (blue) | 5 min | +40 instant stamina, +50 % stamina regeneration, +10 % speed, −25 % stamina use while running and jumping |
+| **Kong Strong Urban Classic** (red, with sugar) | 3 min | +80 instant stamina, +75 % stamina regeneration, +15 % speed, −25 % while running and jumping. **Then a 1 min sugar crash:** −25 % stamina regeneration, −5 % speed |
+| **Skyr Energy** (protein drink) | 10 min | +20 instant stamina, +50 carry weight, +25 % health and stamina regeneration |
+| **Kong Strong XXL** (18.9 L canister) | 20 min | Like Sugar Free, plus **fire resistance** (half fire damage). Weighs 19 kg, does not stack |
+| **Frost Edition** (ice blue) | 10 min | +30 instant stamina, +25 % stamina regeneration, +5 % speed, −15 % while running and jumping, **half frost damage** (like the frost resistance mead) |
+| **Toxic Edition** (green) | 10 min | Like Frost, but **half poison damage** |
+| **Eitr Edition** (purple) | 10 min | +20 instant stamina, +25 instant eitr, +25 % stamina and +50 % eitr regeneration |
+| **Kong Mead Bomb** | 5 min | +50 health over 10 seconds, +50 % stamina regeneration, +10 % speed, −25 % while running and jumping |
+| **Skyr cup** (food) | 30 min | Normal food for one of the three food slots: +50 health, +20 stamina, health regeneration |
 
-| **Frost Edition** (eisblau) | 10 Min. | +30 Sofort-Ausdauer, +25 % Ausdauer-Regeneration, +5 % Tempo, −15 % beim Rennen und Springen, **halber Frostschaden** (wie der Frostresistenz-Met) |
-| **Toxic Edition** (grün, „Gift Edition“) | 10 Min. | wie Frost, aber **halber Giftschaden** |
-| **Eitr Edition** (lila) | 10 Min. | +20 Sofort-Ausdauer, +25 Sofort-Eitr, +25 % Ausdauer- und +50 % Eitr-Regeneration |
-| **Kong-Met-Bombe** | 5 Min. | +50 Leben über 10 Sekunden, +50 % Ausdauer-Regeneration, +10 % Tempo, −25 % beim Rennen und Springen |
-| **Skyr-Becher** (Essen) | 30 Min. | normales Essen für einen der drei Essensplätze: +50 Leben, +20 Ausdauer, Lebensregeneration |
+Only one Kong drink works at a time, and you cannot drink a new one during the sugar crash. You can combine all drinks with mead.
 
-Es wirkt immer nur ein Kong-Drink auf einmal, und während des Zuckercrashs kannst du keinen neuen trinken. Mit Met lassen sich alle Drinks kombinieren.
+### Around the drinks
 
-### Drumherum
+- **Power animation:** Drinking raises your arms like activating a Forsaken power, with Eikthyr's glow but without its sound. Your real power and its cooldown stay untouched.
+- **Caffeine tolerance:** Several drinks within 15 minutes work weaker (the second at 50 %, every further one at 25 %). From the third on you get 2 minutes of **heart racing** with slower regeneration.
+- **Too awake to sleep:** With an active Kong buff your bed refuses to let you sleep.
+- **Empties:** Cans and bottles leave intact empties (not crushed, or the deposit machine could not scan them). Build a can pyramid from them, or trade them for coins at the deposit machine.
+- **Own models:** Cans, bottles, canister, cup and keg are own models. Set `CustomModels = false` in the config to fall back to the game's mead bottles.
+- **"D K!" shout:** After the Kong Strong cans an own shout can play (`[Sound] Shout`, on by default). The mod ships **no** sound: put your own WAV file (16 bit PCM) at `BepInEx/config/KongStrong/shout.wav`, it stays on your PC. Without the file it stays silent. `ShoutBoost` makes the sound louder.
 
-- **Kraft-Animation:** Beim Trinken hebst du die Arme wie bei einer Kraft der Verlassenen, samt Eikthyr-Leuchten ohne dessen Ton. Deine echte Kraft und ihre Abklingzeit bleiben unberührt.
-- **Koffein-Toleranz:** Mehrere Drinks innerhalb von 15 Minuten wirken schwächer (der zweite zu 50 %, jeder weitere zu 25 %). Ab dem dritten gibt es 2 Minuten **Herzrasen** mit langsamerer Regeneration.
-- **Zu wach zum Schlafen:** Mit aktivem Kong-Buff verweigert dein Bett den Schlaf.
-- **Leergut:** Dosen und Flaschen hinterlassen unbeschädigtes Leergut (nicht zerdrückt, sonst scannt der Pfandautomat es nicht). Daraus baust du die Dosenpyramide, oder du tauschst es am Pfandautomaten gegen Münzen.
-- **Eigene Modelle:** Dosen, Flaschen, Kanister, Becher und Fass sind eigene Modelle, in der Config mit `CustomModels = false` auf die Met-Flaschen des Spiels umschaltbar.
-- **„D K!“-Ruf:** Nach den Kong-Strong-Dosen kann ein eigener Ruf kommen (`[Sound] Shout`, standardmäßig an). Die Mod liefert **keinen** Ton mit: Lege eine eigene WAV-Datei (16 Bit PCM) unter `BepInEx/config/KongStrong/shout.wav` ab, sie bleibt auf deinem Rechner. Ohne Datei bleibt es still. `ShoutBoost` macht den Ton lauter.
+## Crafting
 
-## Herstellung
+All drinks are brewed at the **cauldron**. You can build the cauldron once you have tin from the Black Forest, and it needs a fire underneath.
 
-Alle Drinks werden am **Kessel** (Cauldron) gebraut. Den Kessel kannst du bauen, sobald du Zinn aus dem Schwarzwald hast, und er braucht ein Feuer darunter.
-
-| Drink | Zutaten | Ergibt | Ab Biom |
+| Drink | Ingredients | Makes | From biome |
 | --- | --- | --- | --- |
-| Sugar Free | 3 Blaubeeren, 1 Distel, 1 Gelber Pilz | 2 | Schwarzwald |
-| Urban Classic | 2 Honig, 3 Himbeeren, 1 Blutbeutel, 1 Gelber Pilz | 2 | Sumpf |
-| Skyr Energy | 1 Ei, 1 Honig, 2 Blaubeeren | 2 | Ebenen |
-| XXL | 6 Vineberries, 3 Smoke Puffs, 3 Gelbe Pilze | 1 | Ashlands |
+| Sugar Free | 3 Blueberries, 1 Thistle, 1 Yellow Mushroom | 2 | Black Forest |
+| Urban Classic | 2 Honey, 3 Raspberries, 1 Bloodbag, 1 Yellow Mushroom | 2 | Swamp |
+| Skyr Energy | 1 Egg, 1 Honey, 2 Blueberries | 2 | Plains |
+| XXL | 6 Vineberries, 3 Smoke Puffs, 3 Yellow Mushrooms | 1 | Ashlands |
+| Frost Edition | 3 Blueberries, 1 Freeze Gland, 1 Yellow Mushroom | 2 | Deep North |
+| Toxic Edition | 2 Blueberries, 1 Ooze, 1 Thistle, 1 Yellow Mushroom | 2 | Swamp |
+| Eitr Edition | 1 Sap, 1 Magecap, 1 Yellow Mushroom, 2 Blueberries | 2 | Mistlands |
+| Skyr cup | 2 Eggs, 2 Cloudberries, 1 Honey | 2 | Plains |
+| Mead Bomb | Base at the cauldron: 5 Honey, 2 Sugar Free, 5 Raspberries, then ferment it | 6 | Ashlands / Swamp |
 
-| Frost Edition | 3 Blaubeeren, 1 Gefrierdrüse, 1 Gelber Pilz | 2 | Deep North |
-| Toxic Edition | 2 Blaubeeren, 1 Schleim, 1 Distel, 1 Gelber Pilz | 2 | Sumpf |
-| Eitr Edition | 1 Saft, 1 Magierhut-Pilz, 1 Gelber Pilz, 2 Blaubeeren | 2 | Mistlands |
-| Skyr-Becher | 2 Eier, 2 Wolkenbeeren, 1 Honig | 2 | Ebenen |
-| Met-Bombe | Ansatz am Kessel: 5 Honig, 2 Sugar Free, 5 Himbeeren, dann im Gärbottich | 6 | Ashlands/Sumpf |
+Sugar Free needs no honey, it is sugar free after all.
 
-Sugar Free kommt ohne Honig aus, schließlich ist es zuckerfrei.
+## Build pieces (hammer)
 
-## Baustücke (Hammer)
-
-| Stück | Station | Zutaten | Besonderheit |
+| Piece | Station | Ingredients | Notes |
 | --- | --- | --- | --- |
-| Kong-Kühlschrank | Werkbank | 6 Edelholz, 2 Bronze, 1 Gefrierdrüse | 16 Plätze, Tür öffnet sich |
-| Dosenpyramide | – | 10 Kong-Leergut | etwas Komfort |
-| Pfandautomat | Werkbank | 8 Edelholz, 3 Bronze | 1 Münze pro Leergut |
-| Kong-Zapfstelle | Werkbank | 1 XXL-Kanister, 6 Holz | 38 Drinks für alle Mitspieler, Nachfüllen durch Rechtsklick mit einem weiteren XXL |
+| Kong fridge | Workbench | 6 Fine Wood, 2 Bronze, 1 Freeze Gland | 16 slots, the door opens |
+| Can pyramid | – | 10 Kong empties | a little comfort |
+| Deposit machine | Workbench | 8 Fine Wood, 3 Bronze | 1 coin per empty |
+| Kong tap | Workbench | 1 XXL canister, 6 Wood | 38 drinks shared by all players, refill with right click and another XXL |
 
-Alle Werte, Rezepte und Stationen lassen sich in der Config ändern (siehe [Konfiguration](#konfiguration)).
+All values, recipes and stations can be changed in the config (see [Configuration](#configuration)).
 
-## Voraussetzungen
+## Requirements
 
-- [BepInExPack_Valheim](https://thunderstore.io/c/valheim/p/denikson/BepInExPack_Valheim/) 5.4.2333 oder neuer
-- [Jotunn](https://thunderstore.io/c/valheim/p/ValheimModding/Jotunn/) 2.30.2 oder neuer
+- [BepInExPack_Valheim](https://thunderstore.io/c/valheim/p/denikson/BepInExPack_Valheim/) 5.4.2333 or newer
+- [Jotunn](https://thunderstore.io/c/valheim/p/ValheimModding/Jotunn/) 2.30.2 or newer
 
-Im **Multiplayer** müssen alle Spieler und der Server den Mod in derselben Version haben, sonst verweigert Jotunn die Verbindung.
+In **multiplayer** all players and the server need the same version of the mod, or Jotunn refuses the connection.
 
 ## Installation
 
-Die fertige Mod gibt es auf der [Release-Seite](https://github.com/Stanni97/valheim-kong-strong/releases/latest) als `KongStrongEnergy-<version>.zip`. Darin liegen `plugins/KongStrong.dll` sowie `manifest.json` und `icon.png` für Mod-Manager.
+The finished mod is on the [release page](https://github.com/Stanni97/valheim-kong-strong/releases/latest) as `KongStrongEnergy-<version>.zip`. It contains `plugins/KongStrong.dll` plus `manifest.json` and `icon.png` for mod managers.
 
-### Mit Mod-Manager (Windows und Linux)
+### With a mod manager (Windows and Linux)
 
-In [r2modman](https://thunderstore.io/c/valheim/p/ebkr/r2modman/) oder [Gale](https://thunderstore.io/c/valheim/p/Kesomannen/GaleModManager/):
+In [r2modman](https://thunderstore.io/c/valheim/p/ebkr/r2modman/) or [Gale](https://thunderstore.io/c/valheim/p/Kesomannen/GaleModManager/):
 
-1. Ein Valheim-Profil anlegen und darin **BepInExPack_Valheim** und **Jotunn** installieren.
-2. Die Zip-Datei mit der Import-Funktion für lokale Mods einbinden (in r2modman: **Settings → Import local mod**).
-3. Valheim über den Mod-Manager starten (in r2modman: **Start modded**).
+1. Create a Valheim profile and install **BepInExPack_Valheim** and **Jotunn** in it.
+2. Import the zip with the import function for local mods (in r2modman: **Settings → Import local mod**), or install the package from Thunderstore.
+3. Start Valheim through the mod manager (in r2modman: **Start modded**).
 
-### Manuell unter Windows
+### Manually on Windows
 
-1. Den Valheim-Ordner öffnen: in Steam Rechtsklick auf Valheim → **Verwalten** → **Lokale Dateien durchsuchen**.
-2. **BepInExPack_Valheim** herunterladen und den *Inhalt* des Ordners `BepInExPack_Valheim` aus der Zip direkt in den Valheim-Ordner kopieren. Danach liegen `BepInEx\`, `winhttp.dll` und `doorstop_config.ini` neben `valheim.exe`.
-3. **Jotunn** herunterladen und `plugins\Jotunn.dll` nach `BepInEx\plugins\` kopieren.
-4. Den Ordner `BepInEx\plugins\KongStrong\` anlegen und `KongStrong.dll` hineinkopieren.
-5. Valheim ganz normal über Steam starten. Unter Windows sind keine Startoptionen nötig.
+1. Open the Valheim folder: in Steam right click Valheim → **Manage** → **Browse local files**.
+2. Download **BepInExPack_Valheim** and copy the *contents* of its `BepInExPack_Valheim` folder directly into the Valheim folder. Afterwards `BepInEx\`, `winhttp.dll` and `doorstop_config.ini` sit next to `valheim.exe`.
+3. Download **Jotunn** and copy `plugins\Jotunn.dll` to `BepInEx\plugins\`.
+4. Create the folder `BepInEx\plugins\KongStrong\` and copy `KongStrong.dll` into it.
+5. Start Valheim normally through Steam. No launch options are needed on Windows.
 
-### Manuell unter Linux (native Steam-Version)
+### Manually on Linux (native Steam version)
 
-1. Den Valheim-Ordner öffnen, meist `~/.local/share/Steam/steamapps/common/Valheim`.
-2. Den Inhalt von `BepInExPack_Valheim` aus der Zip in diesen Ordner kopieren und das Startskript ausführbar machen:
+1. Open the Valheim folder, usually `~/.local/share/Steam/steamapps/common/Valheim`.
+2. Copy the contents of `BepInExPack_Valheim` from the zip into this folder and make the start script executable:
    ```bash
    chmod +x start_game_bepinex.sh
    ```
-3. Jotunn und `KongStrong.dll` wie unter Windows ablegen: `BepInEx/plugins/Jotunn.dll` und `BepInEx/plugins/KongStrong/KongStrong.dll`.
-4. In Steam Rechtsklick auf Valheim → **Eigenschaften** → **Startoptionen**:
+3. Put Jotunn and `KongStrong.dll` in place like on Windows: `BepInEx/plugins/Jotunn.dll` and `BepInEx/plugins/KongStrong/KongStrong.dll`.
+4. In Steam right click Valheim → **Properties** → **Launch options**:
    ```
    ./start_game_bepinex.sh %command%
    ```
-5. Valheim über Steam starten.
+5. Start Valheim through Steam.
 
-**Linux mit Proton:** Wer Valheim per Proton startet (Kompatibilität erzwungen), installiert die Dateien wie unter Windows und setzt als Startoption stattdessen `WINEDLLOVERRIDES="winhttp=n,b" %command%`.
+**Linux with Proton:** If you run Valheim through Proton (compatibility forced), install the files like on Windows and use `WINEDLLOVERRIDES="winhttp=n,b" %command%` as launch option instead.
 
-### Dedicated Server
+### Dedicated server
 
-`BepInExPack_Valheim`, `Jotunn.dll` und `KongStrong/KongStrong.dll` auf dem Server genauso ablegen. Unter Linux startest du den Server mit `start_server_bepinex.sh`, unter Windows ganz normal.
+Put `BepInExPack_Valheim`, `Jotunn.dll` and `KongStrong/KongStrong.dll` on the server the same way. On Linux start the server with `start_server_bepinex.sh`, on Windows as usual.
 
-### Funktioniert es?
+### Does it work?
 
-- In `BepInEx/LogOutput.log` stehen Zeilen wie `Added KongStrongSugarFree`.
-- Am Kessel tauchen die Drinks in der Rezeptliste auf.
-- Zum Testen geht auch die Konsole (F5): erst `devcommands`, dann zum Beispiel `spawn KongStrongSugarFree 5`.
-  Die Prefab-Namen sind `KongStrongSugarFree`, `KongStrongClassic`, `KongSkyrEnergy` und `KongStrongXXL`.
+- `BepInEx/LogOutput.log` contains lines like `Added KongStrongSugarFree`.
+- The drinks show up in the recipe list at the cauldron.
+- For testing, use the console (F5): first `devcommands`, then for example `spawn KongStrongSugarFree 5`.
+  The prefab names are `KongStrongSugarFree`, `KongStrongClassic`, `KongSkyrEnergy`, `KongStrongXXL`, `KongStrongFrost`, `KongStrongToxic`, `KongStrongEitr`, `KongMetBombe`, `KongSkyrCup` and `KongLeergut` (the empty).
 
-## Konfiguration
+## Configuration
 
-Nach dem ersten Start mit dem Mod liegt die Datei `BepInEx/config/felix.kongstrong.cfg` im Valheim-Ordner. Änderungen greifen nach einem Neustart des Spiels.
+After the first start with the mod, the file `BepInEx/config/felix.kongstrong.cfg` is in your Valheim folder. Changes take effect after restarting the game.
 
-Die Drink-Abschnitte `[SugarFree]`, `[Classic]`, `[Skyr]`, `[XXL]`, `[Frost]`, `[Toxic]`, `[Eitr]` und `[MetBombe]` haben jeweils dieselben Schlüssel:
+The drink sections `[SugarFree]`, `[Classic]`, `[Skyr]`, `[XXL]`, `[Frost]`, `[Toxic]`, `[Eitr]` and `[MetBombe]` all have the same keys:
 
-| Schlüssel | Bedeutung |
+| Key | Meaning |
 | --- | --- |
-| `Enabled` | Drink an- oder abschalten |
-| `DurationSeconds` | Dauer des Buffs in Sekunden |
-| `InstantStamina` | Ausdauer, die sofort aufgefüllt wird |
-| `StaminaRegenBonusPercent` | Schnellere Ausdauer-Regeneration in % |
-| `HealthRegenBonusPercent` | Schnellere Lebens-Regeneration in % |
-| `MoveSpeedBonusPercent` | Schnellere Bewegung in % |
-| `RunStaminaReductionPercent` | Weniger Ausdauerverbrauch beim Rennen in % |
-| `JumpStaminaReductionPercent` | Weniger Ausdauerverbrauch beim Springen in % |
-| `CarryWeightBonus` | Zusätzliche Tragkraft |
-| `InstantEitr`, `EitrRegenBonusPercent`, `HealOverTime` | Sofort-Eitr, schnellere Eitr-Regeneration, Heilung über 10 Sekunden |
-| `FireResistance`, `FrostResistance`, `PoisonResistance` | Schaden während des Buffs: `Normal`, `SlightlyResistant`, `Resistant` (halber Schaden), `VeryResistant` oder `Immune` |
-| `ReturnsEmpty` | Trinken hinterlässt Leergut |
-| `CraftingStation` | Herstellungsort, Standard `Cauldron`, z. B. auch `Workbench` oder `Forge` |
-| `Ingredients` | Zutaten als `Prefab:Anzahl`, durch Kommas getrennt, z. B. `Blueberries:3,Thistle:1`. Unbekannte Namen landen als Warnung im Log |
-| `Amount` | Drinks pro Herstellung |
+| `Enabled` | Turn the drink on or off |
+| `DurationSeconds` | Duration of the buff in seconds |
+| `InstantStamina` | Stamina restored immediately |
+| `StaminaRegenBonusPercent` | Faster stamina regeneration in % |
+| `HealthRegenBonusPercent` | Faster health regeneration in % |
+| `MoveSpeedBonusPercent` | Faster movement in % |
+| `RunStaminaReductionPercent` | Less stamina use while running in % |
+| `JumpStaminaReductionPercent` | Less stamina use while jumping in % |
+| `CarryWeightBonus` | Extra carry weight |
+| `InstantEitr`, `EitrRegenBonusPercent`, `HealOverTime` | Instant eitr, faster eitr regeneration, healing over 10 seconds |
+| `FireResistance`, `FrostResistance`, `PoisonResistance` | Damage while the buff is active: `Normal`, `SlightlyResistant`, `Resistant` (half damage), `VeryResistant` or `Immune` |
+| `ReturnsEmpty` | Drinking leaves an empty |
+| `CraftingStation` | Where it is made, default `Cauldron`, e.g. also `Workbench` or `Forge` |
+| `Ingredients` | Ingredients as `Prefab:Amount`, comma separated, e.g. `Blueberries:3,Thistle:1`. Unknown names end up as a warning in the log |
+| `Amount` | Drinks per craft |
 
-Weitere Abschnitte: `[SugarCrash]`, `[CaffeineTolerance]`, `[HeartRacing]`, `[SkyrCup]`, `[General]` (Schlafsperre, Leergut, Modelle, Animation), `[Sound]` und je Baustück `[Fridge]`, `[CanPyramid]`, `[DepositMachine]`, `[Tap]`.
+More sections: `[SugarCrash]`, `[CaffeineTolerance]`, `[HeartRacing]`, `[SkyrCup]`, `[General]` (sleep block, empties, models, animation), `[Sound]` and one per build piece: `[Fridge]`, `[CanPyramid]`, `[DepositMachine]`, `[Tap]`.
 
-**Updates:** Rezepte (`Ingredients`) und Herstellungsort (`CraftingStation`), die noch auf dem Standard einer älteren Version stehen, werden beim Start automatisch auf den neuen Standard gesetzt. Selbst geänderte Werte bleiben unberührt, die Config muss also nicht gelöscht werden.
+**Updates:** Recipes (`Ingredients`) and crafting station (`CraftingStation`) that still hold the default of an older version are set to the new default automatically at startup. Values you changed yourself stay as they are, so you do not have to delete the config.
 
-Die Prefab-Namen der Zutaten stehen in der [Jotunn-Itemliste](https://valheim-modding.github.io/Jotunn/data/objects/item-list.html).
+The prefab names of ingredients are in the [Jotunn item list](https://valheim-modding.github.io/Jotunn/data/objects/item-list.html).
 
-## Selbst bauen
+## Building it yourself
 
-Du brauchst:
+You need:
 
-- das [.NET SDK](https://dotnet.microsoft.com/download) 8 oder neuer
-  - Windows: Installer von der Microsoft-Seite oder `winget install Microsoft.DotNet.SDK.10`
+- the [.NET SDK](https://dotnet.microsoft.com/download) 8 or newer
+  - Windows: installer from the Microsoft page or `winget install Microsoft.DotNet.SDK.10`
   - Arch/CachyOS: `sudo pacman -S dotnet-sdk`
-- Valheim mit installiertem BepInExPack und Jotunn. Der Build verwendet die DLLs direkt aus dem Spielordner. NuGet-Pakete werden dabei nicht heruntergeladen.
+- Valheim with BepInExPack and Jotunn installed. The build uses the DLLs straight from the game folder. No NuGet packages are downloaded.
 
 ```bash
 git clone https://github.com/Stanni97/valheim-kong-strong.git
@@ -161,33 +161,34 @@ cd valheim-kong-strong
 dotnet build -c Release
 ```
 
-Der Build kopiert `KongStrong.dll` automatisch nach `BepInEx/plugins/KongStrong/` und legt das Release-Zip unter `dist/` ab.
+The build copies `KongStrong.dll` to `BepInEx/plugins/KongStrong/` automatically and puts the release zip in `dist/`.
 
-Liegt Valheim nicht im Standard-Steam-Ordner, gibst du den Pfad mit:
+If Valheim is not in the default Steam folder, pass the path:
 
 ```bash
 dotnet build -c Release -p:ValheimDir="D:\SteamLibrary\steamapps\common\Valheim"
 ```
 
-Das automatische Kopieren ins Spiel schaltest du mit `-p:InstallToGame=false` ab.
+Turn off the automatic copy into the game with `-p:InstallToGame=false`.
 
-Bei einer neuen Version die Versionsnummer an zwei Stellen erhöhen: `<Version>` in `KongStrong.csproj` und `PluginVersion` in `src/KongStrongPlugin.cs`.
+For a new version raise the version number in two places: `<Version>` in `KongStrong.csproj` and `PluginVersion` in `src/KongStrongPlugin.cs`.
 
-Icons, Modell-Texturen und der eingebaute Ruf entstehen mit Python 3 (Pillow, numpy): `tools/make_icons.py` (Icons, `--classic` für den ersten, klaren Stil, den es auch fertig unter `Assets/backup-v1` gibt) und `tools/make_textures.py` (Texturen der Modelle). Der Gorilla kommt aus `tools/gorilla.py`, die Meshes baut `src/Models.cs` im Code. Als Schriften dienen standardmäßig Noto Sans Black und DejaVu Serif Bold. Andere Pfade setzt du über die Umgebungsvariablen `KONG_FONT_HEAVY` und `KONG_FONT_SLAB`.
+Icons and model textures are made with Python 3 (Pillow): `tools/make_icons.py` (icons; `--classic` gives the first, clean style, which is also kept as finished files in `Assets/backup-v1`) and `tools/make_textures.py` (textures of the models). The gorilla comes from `tools/gorilla.py`, the meshes are built in code by `src/Models.cs`. The default fonts are Noto Sans Black and DejaVu Serif Bold; set other paths with the environment variables `KONG_FONT_HEAVY` and `KONG_FONT_SLAB`.
 
 ```bash
 python3 tools/make_icons.py Assets 128
-python3 tools/make_icons.py /tmp/icons256 256   # danach sugarfree.png als Thunderstore/icon.png kopieren
+python3 tools/make_textures.py Assets
+python3 tools/make_icons.py /tmp/icons256 256   # then copy sugarfree.png to Thunderstore/icon.png
 ```
 
-## Automatische Updates
+## Automatic updates
 
-Diese Mod wird vom [Bifrost Updater](https://github.com/Stanni97/bifrost-updater) mit aktualisiert, wenn er installiert ist. Er prüft beim Spielstart das neueste GitHub-Release. Die Mod nennt dafür ihr Repository in der DLL. Der Updater ist optional, die Mod läuft auch ohne.
+This mod is updated by the [Bifrost Updater](https://github.com/Stanni97/bifrost-updater) when it is installed. It checks the latest GitHub release when the game starts. The mod names its repository inside the DLL. The updater is optional, the mod works without it.
 
-## Hinweis
+## Notice
 
-Dies ist ein inoffizieller Fan-Mod ohne Verbindung zu Lidl, Milbona oder der Marke Kong Strong. Icons, Modelle und Ton sind eigene Arbeiten im Stil der Dosen.
+This is an unofficial fan mod with no connection to Lidl, Milbona or the Kong Strong brand. Icons, models and textures are own work in the style of the cans.
 
-## Lizenz
+## License
 
-Code und Icons stehen unter der [MIT-Lizenz](https://github.com/Stanni97/valheim-kong-strong/blob/main/LICENSE). Rechte an den Marken Kong Strong, Milbona und Lidl verleiht die Lizenz nicht, die bleiben bei ihren Inhabern.
+Code and icons are under the [MIT license](https://github.com/Stanni97/valheim-kong-strong/blob/main/LICENSE). The license grants no rights to the Kong Strong, Milbona and Lidl trademarks, those stay with their owners.
