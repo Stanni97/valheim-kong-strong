@@ -5,6 +5,7 @@
 ## 1.2.2
 
 - Ein dedizierter Server lädt den Ruf nicht mehr, und ohne `shout.wav` steht „No shout file“ nur noch einmal im Log statt einmal pro Getränk.
+- README: Updates laufen über den Mod-Manager (r2modman, Gale). Bifrost Updater wird nur noch als optionales Werkzeug für manuelle Installationen von GitHub erwähnt.
 
 ## 1.2.1
 

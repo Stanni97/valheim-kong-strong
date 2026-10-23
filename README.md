@@ -181,9 +181,12 @@ python3 tools/make_textures.py Assets
 python3 tools/make_icons.py /tmp/icons256 256   # then copy sugarfree.png to Thunderstore/icon.png
 ```
 
-## Automatic updates
+## Updates
 
-This mod is updated by the [Bifrost Updater](https://github.com/Stanni97/bifrost-updater) when it is installed. It checks the latest GitHub release when the game starts. The mod names its repository inside the DLL. The updater is optional, the mod works without it.
+- **With a mod manager (recommended):** r2modman and Gale show new versions from Thunderstore and install them. In multiplayer, update the server and all players together, they need the same version.
+- **Manual install from GitHub:** If you installed the mod by hand, the optional [Bifrost Updater](https://github.com/Stanni97/bifrost-updater) can keep it current from the GitHub releases. It is a separate tool and not part of this package. Don't use it on a mod manager profile, the mod manager would then show the wrong version.
+
+The mod itself never downloads anything and never updates itself.
 
 ## Notice
 

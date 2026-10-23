@@ -18,7 +18,7 @@
     <AutomaticallyUseReferenceAssemblyPackages>false</AutomaticallyUseReferenceAssemblyPackages>
   </PropertyGroup>
 
-  <!-- StanniUpdater reads this to know where the mod's updates come from. -->
+  <!-- Read by the optional Bifrost Updater (manual GitHub installs) to find the mod's releases. Passive metadata, the mod never updates itself. -->
   <ItemGroup>
     <AssemblyMetadata Include="UpdateRepo" Value="Stanni97/valheim-kong-strong" />
   </ItemGroup>

@@ -5,6 +5,7 @@
 ## 1.2.2
 
 - A dedicated server no longer loads the shout, and without a `shout.wav` the "No shout file" line is logged once instead of once per drink.
+- README: updates go through the mod manager (r2modman, Gale). Bifrost Updater is only mentioned as an optional tool for manual installs from GitHub.
 
 ## 1.2.1
 
