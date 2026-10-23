@@ -2,6 +2,10 @@
 
 [English](CHANGELOG.md)
 
+## 1.2.2
+
+- Ein dedizierter Server lädt den Ruf nicht mehr, und ohne `shout.wav` steht „No shout file“ nur noch einmal im Log statt einmal pro Getränk.
+
 ## 1.2.1
 
 - Die Textur der Baustücke wiederholte sich mehrfach (Pfandautomat in unveränderter Größe), weil Valheims Piece-Shader sie kachelt; die Baustücke nutzen jetzt ein einfaches Standard-Material (Kühlschrank, Pyramide, Automat, Zapfstelle).

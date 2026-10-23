@@ -2,6 +2,10 @@
 
 [Deutsch](CHANGELOG.de.md)
 
+## 1.2.2
+
+- A dedicated server no longer loads the shout, and without a `shout.wav` the "No shout file" line is logged once instead of once per drink.
+
 ## 1.2.1
 
 - The textures of the build pieces repeated several times because Valheim's piece shader tiles them. Build pieces now use a plain Standard material, and the deposit machine texture is drawn to the machine's proportions (size unchanged).

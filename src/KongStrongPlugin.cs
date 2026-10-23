@@ -19,7 +19,7 @@ namespace KongStrong
         public const string PluginGUID = "felix.kongstrong";
         public const string PluginName = "Kong Strong Energy";
         // Keep in sync with <Version> in KongStrong.csproj.
-        public const string PluginVersion = "1.2.1";
+        public const string PluginVersion = "1.2.2";
 
         // Shared by all drinks, the crash and heart racing, so only one of them can be active at a time.
         private const string StatusCategory = "kongstrong";
@@ -121,6 +121,7 @@ namespace KongStrong
         private string _shoutFile;
         private float _shoutBoost;
         private GameObject _shoutSfx;
+        private bool _shoutLoaded;
 
         /// <summary>Prefab name of the empty an item leaves behind, or null.</summary>
         internal static string EmptyFor(string itemToken)
@@ -480,8 +481,11 @@ namespace KongStrong
             // Reuse the drinking sound and particles of the mead we cloned, plus the shout.
             if (baseEffect != null)
             {
-                if (_shout && _shoutSfx == null)
+                // Loaded once: without a file it used to be retried (and logged) for every drink.
+                // A dedicated server plays no sound, so it does not load one at all.
+                if (_shout && !_shoutLoaded && !GUIManager.IsHeadless())
                 {
+                    _shoutLoaded = true;
                     Try("the shout", () =>
                     {
                         AudioClip clip = LoadShout();
