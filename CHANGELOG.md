@@ -2,9 +2,13 @@
 
 [Deutsch](CHANGELOG.de.md)
 
-## 1.2.3
+## 1.3.0
 
-- Old default values in the config are now replaced only once after an update (new key `[General] ConfigVersion`). Before, the check ran at every start, so turning the shout off (`Shout = false`) was switched back on at the next start. Your own values are kept.
+- **Server config:** On a server with the mod, its values (drinks, crash, tolerance, Skyr cup, build pieces) apply to every player. The server sends them on join; on leaving, your own values count again. Without a server your own config counts as before. Personal settings stay your own: `[Sound]`, `CustomModels`, `PowerAnimation`.
+- **Shout from the server:** If the server has a `shout.wav` (`[Sound] CustomShoutFile`), every player hears that one while connected. Without one, your own file plays. Whether the shout is on and how loud stays your choice.
+- Changed values work right away, without a restart: recipes, buffs, crash and heart racing, Skyr cup, build pieces and the durations in the descriptions.
+- `Enabled = false` now removes the recipe (or the piece from the hammer) instead of taking the item out of the game.
+- Old default values in the config values in the config are now replaced only once after an update (new key `[General] ConfigVersion`). Before, the check ran at every start, so turning the shout off (`Shout = false`) was switched back on at the next start. Your own values are kept.
 
 ## 1.2.2
 

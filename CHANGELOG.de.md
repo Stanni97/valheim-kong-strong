@@ -2,8 +2,12 @@
 
 [English](CHANGELOG.md)
 
-## 1.2.3
+## 1.3.0
 
+- **Server-Config:** Auf einem Server mit dem Mod gelten seine Werte (Drinks, Crash, Toleranz, Skyr-Becher, Baustücke) für alle Spieler. Der Server schickt sie beim Betreten; beim Verlassen gelten wieder die eigenen. Ohne Server zählt wie bisher die eigene Config. Persönliche Einstellungen bleiben die eigenen: `[Sound]`, `CustomModels`, `PowerAnimation`.
+- **Ruf vom Server:** Hat der Server eine `shout.wav` (`[Sound] CustomShoutFile`), hört jeder Spieler diese, solange er verbunden ist. Ohne eine spielt die eigene Datei. Ob der Ruf an ist und wie laut, entscheidet jeder selbst.
+- Geänderte Werte wirken sofort, ohne Neustart: Rezepte, Buffs, Crash und Herzrasen, Skyr-Becher, Baustücke und die Dauer in den Beschreibungen.
+- `Enabled = false` entfernt jetzt das Rezept (oder das Baustück aus dem Hammer), statt den Gegenstand ganz aus dem Spiel zu nehmen.
 - Alte Standardwerte in der Config werden nach einem Update nur noch einmal ersetzt (neuer Eintrag `[General] ConfigVersion`). Vorher lief die Prüfung bei jedem Start, sodass ein ausgeschalteter Ruf (`Shout = false`) beim nächsten Start wieder an war. Eigene Werte bleiben erhalten.
 
 ## 1.2.2

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using BepInEx;
@@ -14,12 +15,14 @@ namespace KongStrong
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     [BepInDependency(Jotunn.Main.ModGuid)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
+    // On a server with this mod its gameplay values apply to everyone; without a server each player's own config counts.
+    [SynchronizationMode(AdminOnlyStrictness.IfOnServer)]
     internal class KongStrongPlugin : BaseUnityPlugin
     {
         public const string PluginGUID = "felix.kongstrong";
         public const string PluginName = "Kong Strong Energy";
         // Keep in sync with <Version> in KongStrong.csproj.
-        public const string PluginVersion = "1.2.3";
+        public const string PluginVersion = "1.3.0";
 
         // Shared by all drinks, the crash and heart racing, so only one of them can be active at a time.
         private const string StatusCategory = "kongstrong";
@@ -107,7 +110,6 @@ namespace KongStrong
         private int _crashRegenPenalty;
         private int _crashSpeedPenalty;
 
-        private bool _heartEnabled;
         private float _heartDuration;
         private int _heartHealthPenalty;
         private int _heartStaminaPenalty;
@@ -123,6 +125,16 @@ namespace KongStrong
         private GameObject _shoutSfx;
         private bool _shoutLoaded;
 
+        // The shout plays from these entries in the drinks' start effects; they are on while a shout is available.
+        private readonly List<EffectList.EffectData> _shoutEntries = new List<EffectList.EffectData>();
+        private AudioClip _localShout;
+        private AudioClip _serverShout;
+        private const int MaxShoutBytes = 4 * 1024 * 1024;
+
+        private readonly Dictionary<string, CustomItem> _items = new Dictionary<string, CustomItem>();
+        private bool _added;
+        private bool _dirty;
+
         /// <summary>Prefab name of the empty an item leaves behind, or null.</summary>
         internal static string EmptyFor(string itemToken)
         {
@@ -131,7 +143,25 @@ namespace KongStrong
 
         private void Awake()
         {
+            ServerSync.Log = Logger;
             ConfigBinder.Begin(Config);
+            BindAll();
+            ConfigBinder.Finish(Config, Logger);
+
+            Texts.Register(Get);
+            Harmony.CreateAndPatchAll(typeof(Patches), PluginGUID);
+            PrefabManager.OnVanillaPrefabsAvailable += AddContent;
+
+            // Fires for every value the server sends, when it restores the own values on leaving, and on a config reload.
+            Config.SettingChanged += (sender, args) => _dirty = true;
+
+            // The server's own shout, if it has one, is sent to every player who joins.
+            CustomRPC shoutRpc = NetworkManager.Instance.AddRPC("KongStrong_ServerShout", (sender, package) => Nothing(), ReceiveServerShout);
+            SynchronizationManager.Instance.AddInitialSynchronization(shoutRpc, ServerShoutPackage);
+        }
+
+        private void BindAll()
+        {
             foreach (Drink drink in _drinks)
             {
                 drink.Bind(Config);
@@ -140,52 +170,201 @@ namespace KongStrong
             _skyrCup.Bind(Config);
             Pieces.Bind(Config);
             BindGeneral();
-            ConfigBinder.Finish(Config, Logger);
+        }
 
-            Texts.Register(Get, _skyrCup);
-            Harmony.CreateAndPatchAll(typeof(Patches), PluginGUID);
-            PrefabManager.OnVanillaPrefabsAvailable += AddContent;
+        private void Update()
+        {
+            // Back in the main menu: your own shout again.
+            if (_serverShout != null && ZNet.instance == null)
+            {
+                _serverShout = null;
+                ApplyShout();
+            }
+
+            if (_dirty && _added)
+            {
+                _dirty = false;
+                try
+                {
+                    Refresh();
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError($"Could not apply the changed config: {e}");
+                }
+            }
+        }
+
+        /// <summary>Reads the config again and updates recipes, buffs, food, the pieces and the texts in place.</summary>
+        private void Refresh()
+        {
+            BindAll();
+            SE_Kong.CrashEnabled = _crashEnabled;
+
+            Fermenter fermenter = PrefabManager.Instance.GetPrefab("fermenter")?.GetComponent<Fermenter>();
+            foreach (Drink drink in _drinks)
+            {
+                if (_effects.TryGetValue(drink.Key, out SE_Kong effect))
+                {
+                    ApplyStats(effect, drink);
+                }
+
+                ServerSync.SetRecipe(RecipeOf(drink.Fermented ? drink.BasePrefabName : drink.PrefabName), drink.Enabled,
+                    drink.CraftingStation, drink.Amount, drink.Ingredients);
+                if (drink.Fermented)
+                {
+                    Fermenter.ItemConversion conversion =
+                        fermenter?.m_conversion.Find(c => c.m_from != null && c.m_from.name == drink.BasePrefabName);
+                    if (conversion != null)
+                    {
+                        conversion.m_producedItems = Mathf.Max(1, drink.FermenterYield);
+                    }
+                }
+            }
+
+            SetDebuff(SE_Kong.Crash, _crashDuration, 1f - _crashRegenPenalty / 100f, 1f, -_crashSpeedPenalty / 100f);
+            SetDebuff(SE_Kong.HeartRacing, _heartDuration, 1f - _heartStaminaPenalty / 100f, 1f - _heartHealthPenalty / 100f, 0f);
+
+            ServerSync.SetRecipe(RecipeOf("KongSkyrCup"), _skyrCup.Enabled, _skyrCup.CraftingStation, _skyrCup.Amount, _skyrCup.Ingredients);
+            if (_items.TryGetValue("KongSkyrCup", out CustomItem cup))
+            {
+                SetSkyrFood(cup.ItemDrop.m_itemData.m_shared);
+            }
+
+            Pieces.Apply();
+            Texts.Refresh(Get);
+            ApplyShout();
+        }
+
+        private Recipe RecipeOf(string prefab) => _items.TryGetValue(prefab, out CustomItem item) ? item.Recipe?.Recipe : null;
+
+        private void Track(CustomItem item, string station, string ingredients)
+        {
+            _items[item.ItemPrefab.name] = item;
+            ServerSync.Remember(item.Recipe?.Recipe, station, ingredients);
+        }
+
+        private static IEnumerator Nothing()
+        {
+            yield break;
+        }
+
+        private string ShoutPath()
+        {
+            return string.IsNullOrEmpty(_shoutFile) ? null
+                : System.IO.Path.IsPathRooted(_shoutFile) ? _shoutFile : System.IO.Path.Combine(BepInEx.Paths.ConfigPath, _shoutFile);
+        }
+
+        /// <summary>On the server: its shout file for a joining player, or nothing.</summary>
+        private ZPackage ServerShoutPackage()
+        {
+            byte[] data = null;
+            string path = ShoutPath();
+            try
+            {
+                if (path != null && System.IO.File.Exists(path))
+                {
+                    data = System.IO.File.ReadAllBytes(path);
+                    if (data.Length > MaxShoutBytes)
+                    {
+                        Logger.LogWarning($"{path} is larger than {MaxShoutBytes / 1024 / 1024} MB and is not sent to the players.");
+                        data = null;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.LogWarning($"Could not read {path}: {e.Message}");
+                data = null;
+            }
+
+            var package = new ZPackage();
+            package.Write(data != null);
+            if (data != null)
+            {
+                package.Write(data);
+            }
+
+            return package;
+        }
+
+        /// <summary>On a player: the server's shout replaces the own one while connected. Without one, the own one stays.</summary>
+        private IEnumerator ReceiveServerShout(long sender, ZPackage package)
+        {
+            _serverShout = null;
+            if (package.ReadBool() && !GUIManager.IsHeadless())
+            {
+                try
+                {
+                    _serverShout = Sounds.Normalize(Sounds.FromWav("server_shout", package.ReadByteArray()), _shoutBoost);
+                    Logger.LogInfo("Using the shout of the server while connected.");
+                }
+                catch (Exception e)
+                {
+                    Logger.LogWarning($"The server's shout could not be read: {e.Message}");
+                }
+            }
+
+            ApplyShout();
+            yield break;
+        }
+
+        /// <summary>The server's shout if there is one, else your own file; [Sound] Shout and ShoutVolume are your own choice.</summary>
+        private void ApplyShout()
+        {
+            AudioClip clip = _serverShout != null ? _serverShout : _localShout;
+            if (_shoutSfx != null)
+            {
+                ZSFX sfx = _shoutSfx.GetComponent<ZSFX>();
+                sfx.m_audioClips = clip != null ? new[] { clip } : new AudioClip[0];
+                sfx.m_minVol = sfx.m_maxVol = _shoutVolume;
+            }
+
+            foreach (EffectList.EffectData entry in _shoutEntries)
+            {
+                entry.m_enabled = _shout && clip != null && _shoutSfx != null;
+            }
         }
 
         private void BindGeneral()
         {
             Patches.TooAwakeToSleep = Config.Bind("General", "TooAwakeToSleep", true,
-                "Beds refuse to let you sleep while a Kong buff is active.").Value;
+                ServerSync.Desc("Beds refuse to let you sleep while a Kong buff is active.")).Value;
             _emptiesEnabled = Config.Bind("General", "Empties", true,
-                "Drinks leave an empty (Leergut) behind, for the deposit machine and the can pyramid.").Value;
+                ServerSync.Desc("Drinks leave an empty (Leergut) behind, for the deposit machine and the can pyramid.")).Value;
 
             _crashEnabled = Config.Bind("SugarCrash", "Enabled", true,
-                "Urban Classic is followed by a sugar crash when its buff runs out.").Value;
+                ServerSync.Desc("Urban Classic is followed by a sugar crash when its buff runs out.")).Value;
             _crashDuration = Config.Bind("SugarCrash", "DurationSeconds", 60f,
-                "How long the sugar crash lasts, in seconds.").Value;
+                ServerSync.Desc("How long the sugar crash lasts, in seconds.")).Value;
             _crashRegenPenalty = Config.Bind("SugarCrash", "StaminaRegenPenaltyPercent", 25,
-                "Slower stamina regeneration during the crash, in percent.").Value;
+                ServerSync.Desc("Slower stamina regeneration during the crash, in percent.")).Value;
             _crashSpeedPenalty = Config.Bind("SugarCrash", "MoveSpeedPenaltyPercent", 5,
-                "Slower movement during the crash, in percent.").Value;
+                ServerSync.Desc("Slower movement during the crash, in percent.")).Value;
 
             ToleranceSettings t = SE_Kong.Tolerance;
             t.Enabled = Config.Bind("CaffeineTolerance", "Enabled", true,
-                "Drinks taken shortly after each other work less.").Value;
+                ServerSync.Desc("Drinks taken shortly after each other work less.")).Value;
             t.WindowMinutes = Config.Bind("CaffeineTolerance", "WindowMinutes", 15f,
-                "Drinks within this many minutes count as drunk in a row.").Value;
+                ServerSync.Desc("Drinks within this many minutes count as drunk in a row.")).Value;
             t.SecondDrinkPercent = Config.Bind("CaffeineTolerance", "SecondDrinkEffectPercent", 50,
-                "Strength of the second drink in a row, in percent.").Value;
+                ServerSync.Desc("Strength of the second drink in a row, in percent.")).Value;
             t.FurtherDrinkPercent = Config.Bind("CaffeineTolerance", "FurtherDrinkEffectPercent", 25,
-                "Strength of the third and every further drink in a row, in percent.").Value;
+                ServerSync.Desc("Strength of the third and every further drink in a row, in percent.")).Value;
             t.HeartRacingFromDrink = Config.Bind("CaffeineTolerance", "HeartRacingFromDrink", 3,
-                "From this drink in a row on you get heart racing. 0 turns it off.").Value;
+                ServerSync.Desc("From this drink in a row on you get heart racing. 0 turns it off.")).Value;
 
-            _heartEnabled = t.HeartRacingFromDrink > 0;
             _heartDuration = Config.Bind("HeartRacing", "DurationSeconds", 120f,
-                "How long heart racing lasts, in seconds.").Value;
+                ServerSync.Desc("How long heart racing lasts, in seconds.")).Value;
             _heartHealthPenalty = Config.Bind("HeartRacing", "HealthRegenPenaltyPercent", 50,
-                "Slower health regeneration during heart racing, in percent.").Value;
+                ServerSync.Desc("Slower health regeneration during heart racing, in percent.")).Value;
             _heartStaminaPenalty = Config.Bind("HeartRacing", "StaminaRegenPenaltyPercent", 25,
-                "Slower stamina regeneration during heart racing, in percent.").Value;
+                ServerSync.Desc("Slower stamina regeneration during heart racing, in percent.")).Value;
 
             // 1.2.0 shipped with the shout off and 0.8; values still at that default move to the new one once (see ConfigBinder).
             _shout = ConfigBinder.Bind(Config, "Sound", "Shout", true,
-                "Every Kong Strong drink (cans, XXL, tap) is followed by a shouted \"D K!\".", new[] { false });
+                "Every Kong Strong drink (cans, XXL, tap) is followed by a shouted \"D K!\". Your own choice, also on a server.",
+                new[] { false }, synced: false);
             _customModels = Config.Bind("General", "CustomModels", true,
                 "Cans, bottles and the canister get their own models. Off: they look like the vanilla meads.").Value;
             SE_Kong.PowerAnimation = Config.Bind("General", "PowerAnimation", true,
@@ -195,7 +374,7 @@ namespace KongStrong
                     new BepInEx.Configuration.AcceptableValueRange<float>(0f, 1f)), new[] { 0.8f });
             _shoutFile = Config.Bind("Sound", "CustomShoutFile", "KongStrong/shout.wav",
                 "Your own 16 bit PCM WAV for the shout, relative to BepInEx/config or absolute. " +
-                "The mod ships no sound; without this file nothing is played.").Value;
+                "The mod ships no sound; without this file nothing is played. If the server has this file, players hear the server's shout.").Value;
             _shoutBoost = Config.Bind("Sound", "ShoutBoost", 2.5f,
                 new BepInEx.Configuration.ConfigDescription("Makes the shout louder than full scale allows by soft limiting (1 = off).",
                     new BepInEx.Configuration.AcceptableValueRange<float>(1f, 8f))).Value;
@@ -226,41 +405,28 @@ namespace KongStrong
                 });
             }
 
-            Try("the sugar crash", () =>
-            {
-                if (_crashEnabled && _drinks.Any(d => d.Enabled && d.CausesCrash))
-                {
-                    SE_Kong.Crash = AddDebuff("SE_KongSugarCrash", "se_kong_crash", "crash", _crashDuration,
-                        1f - _crashRegenPenalty / 100f, 1f, -_crashSpeedPenalty / 100f);
-                }
-            });
-
-            Try("heart racing", () =>
-            {
-                if (_heartEnabled && SE_Kong.Tolerance.Enabled)
-                {
-                    SE_Kong.HeartRacing = AddDebuff("SE_KongHeartRacing", "se_kong_heartracing", "heartracing", _heartDuration,
-                        1f - _heartStaminaPenalty / 100f, 1f - _heartHealthPenalty / 100f, 0f);
-                }
-            });
+            // Always added, so the server can switch them on and off; the settings decide whether they are used.
+            Try("the sugar crash", () => SE_Kong.Crash = AddDebuff("SE_KongSugarCrash", "se_kong_crash", "crash"));
+            Try("heart racing", () => SE_Kong.HeartRacing = AddDebuff("SE_KongHeartRacing", "se_kong_heartracing", "heartracing"));
 
             Try("the power effect", AddPowerEffect);
 
             Try(EmptyPrefab, AddEmpty);
 
-            foreach (Drink drink in _drinks.Where(d => d.Enabled))
+            // Everything is added; Enabled only switches recipes and pieces, so the server can change it while you play.
+            foreach (Drink drink in _drinks)
             {
                 Try(drink.PrefabName, () => AddDrink(drink));
             }
 
-            if (_skyrCup.Enabled)
-            {
-                Try("KongSkyrCup", AddSkyrCup);
-            }
+            Try("KongSkyrCup", AddSkyrCup);
 
             KongTap.Effect = _effects.TryGetValue("SugarFree", out SE_Kong tap) ? tap
                 : _effects.TryGetValue("XXL", out SE_Kong xxl) ? xxl : null;
             Pieces.Register(ParseRequirements, Try);
+
+            _added = true;
+            _dirty = true;   // applies Enabled and everything else on the next frame
         }
 
         private Mesh MeshFor(string model)
@@ -364,8 +530,7 @@ namespace KongStrong
             }
         }
 
-        private StatusEffect AddDebuff(string name, string token, string icon, float duration,
-                                       float staminaRegen, float healthRegen, float speed)
+        private StatusEffect AddDebuff(string name, string token, string icon)
         {
             var effect = ScriptableObject.CreateInstance<SE_Stats>();
             effect.name = name;
@@ -373,14 +538,21 @@ namespace KongStrong
             effect.m_tooltip = effect.m_name + "_tooltip";
             effect.m_category = StatusCategory;
             effect.m_icon = Icons.Get(icon);
-            effect.m_ttl = duration;
             effect.m_startMessageType = MessageHud.MessageType.Center;
             effect.m_startMessage = effect.m_name + "_start";
-            effect.m_staminaRegenMultiplier = Mathf.Max(0f, staminaRegen);
-            effect.m_healthRegenMultiplier = Mathf.Max(0f, healthRegen);
-            effect.m_speedModifier = speed;
             ItemManager.Instance.AddStatusEffect(new CustomStatusEffect(effect, false));
             return effect;
+        }
+
+        private static void SetDebuff(StatusEffect status, float duration, float staminaRegen, float healthRegen, float speed)
+        {
+            if (status is SE_Stats effect)
+            {
+                effect.m_ttl = duration;
+                effect.m_staminaRegenMultiplier = Mathf.Max(0f, staminaRegen);
+                effect.m_healthRegenMultiplier = Mathf.Max(0f, healthRegen);
+                effect.m_speedModifier = speed;
+            }
         }
 
         private void AddDrink(Drink drink)
@@ -424,6 +596,7 @@ namespace KongStrong
 
             Dress(item, drink.Model, drink.Texture, drink.Metallic, drink.Smoothness, drink.Glow, icon);
             ItemManager.Instance.AddItem(item);
+            Track(item, drink.CraftingStation, drink.Ingredients);
 
             if (drink.ReturnsEmpty)
             {
@@ -441,30 +614,64 @@ namespace KongStrong
         private SE_Kong CreateEffect(Drink drink, Sprite icon, StatusEffect baseEffect)
         {
             var effect = ScriptableObject.CreateInstance<SE_Kong>();
-            bool crashAfter = drink.CausesCrash && SE_Kong.Crash != null;
-            effect.CausesCrash = crashAfter;
             effect.name = "SE_" + drink.PrefabName;
             effect.m_name = $"$se_{drink.Token}";
             effect.m_tooltip = $"$se_{drink.Token}_tooltip";
             effect.m_category = StatusCategory;
             effect.m_icon = icon;
-            effect.m_ttl = drink.Duration;
             effect.m_startMessageType = MessageHud.MessageType.Center;
             effect.m_startMessage = $"$se_{drink.Token}_start";
-            if (!crashAfter)
+            ApplyStats(effect, drink);
+
+            // Reuse the drinking sound and particles of the mead we cloned, plus the shout.
+            if (baseEffect != null)
             {
-                effect.m_stopMessageType = MessageHud.MessageType.TopLeft;
-                effect.m_stopMessage = "$se_kong_stop";
+                effect.m_startEffects = baseEffect.m_startEffects;
+                effect.m_stopEffects = baseEffect.m_stopEffects;
+
+                // A dedicated server plays no sound, so it has no shout.
+                if (drink.Shout && !GUIManager.IsHeadless())
+                {
+                    if (!_shoutLoaded)
+                    {
+                        _shoutLoaded = true;
+                        Try("the shout", () =>
+                        {
+                            _localShout = LoadShout();
+                            _shoutSfx = Sounds.CreateSfx("sfx_kong_dk", _localShout, baseEffect.m_startEffects, _shoutVolume, 0.35f);
+                        });
+                    }
+
+                    if (_shoutSfx != null)
+                    {
+                        var entry = new EffectList.EffectData { m_prefab = _shoutSfx, m_enabled = false, m_variant = -1 };
+                        _shoutEntries.Add(entry);
+                        effect.m_startEffects = new EffectList
+                        {
+                            m_effectPrefabs = (baseEffect.m_startEffects?.m_effectPrefabs ?? new EffectList.EffectData[0])
+                                .Concat(new[] { entry }).ToArray(),
+                        };
+                    }
+                }
             }
+
+            return effect;
+        }
+
+        /// <summary>SEMan copies the effect when it starts, so a changed value counts from the next drink.</summary>
+        private void ApplyStats(SE_Kong effect, Drink drink)
+        {
+            bool crashAfter = drink.CausesCrash && _crashEnabled;
+            effect.CausesCrash = drink.CausesCrash;
+            effect.m_ttl = drink.Duration;
+            effect.m_stopMessageType = MessageHud.MessageType.TopLeft;
+            effect.m_stopMessage = crashAfter ? "" : "$se_kong_stop";
 
             effect.m_staminaUpFront = drink.InstantStamina;
             effect.m_eitrUpFront = drink.InstantEitr;
-            if (drink.HealOverTime > 0f)
-            {
-                effect.m_healthOverTime = drink.HealOverTime;
-                effect.m_healthOverTimeDuration = 10f;
-                effect.m_healthOverTimeInterval = 1f;
-            }
+            effect.m_healthOverTime = Mathf.Max(0f, drink.HealOverTime);
+            effect.m_healthOverTimeDuration = 10f;
+            effect.m_healthOverTimeInterval = 1f;
 
             effect.m_staminaRegenMultiplier = 1f + drink.StaminaRegenBonus / 100f;
             effect.m_healthRegenMultiplier = 1f + drink.HealthRegenBonus / 100f;
@@ -479,36 +686,11 @@ namespace KongStrong
             AddResistance(mods, HitData.DamageType.Frost, drink.FrostResistance);
             AddResistance(mods, HitData.DamageType.Poison, drink.PoisonResistance);
             effect.m_mods = mods;
-
-            // Reuse the drinking sound and particles of the mead we cloned, plus the shout.
-            if (baseEffect != null)
-            {
-                // Loaded once: without a file it used to be retried (and logged) for every drink.
-                // A dedicated server plays no sound, so it does not load one at all.
-                if (_shout && !_shoutLoaded && !GUIManager.IsHeadless())
-                {
-                    _shoutLoaded = true;
-                    Try("the shout", () =>
-                    {
-                        AudioClip clip = LoadShout();
-                        if (clip != null)
-                        {
-                            _shoutSfx = Sounds.CreateSfx("sfx_kong_dk", clip, baseEffect.m_startEffects, _shoutVolume, 0.35f);
-                        }
-                    });
-                }
-
-                effect.m_startEffects = _shout && drink.Shout ? Sounds.With(baseEffect.m_startEffects, _shoutSfx) : baseEffect.m_startEffects;
-                effect.m_stopEffects = baseEffect.m_stopEffects;
-            }
-
-            return effect;
         }
 
         private AudioClip LoadShout()
         {
-            string path = string.IsNullOrEmpty(_shoutFile) ? null
-                : System.IO.Path.IsPathRooted(_shoutFile) ? _shoutFile : System.IO.Path.Combine(BepInEx.Paths.ConfigPath, _shoutFile);
+            string path = ShoutPath();
             if (path != null && System.IO.File.Exists(path))
             {
                 try
@@ -552,6 +734,7 @@ namespace KongStrong
             var baseItem = new CustomItem(drink.BasePrefabName, drink.FermenterBase, baseConfig);
             Dress(baseItem, "barrel", "tex_barrel", 0f, 0.25f, null, baseConfig.Icon);
             ItemManager.Instance.AddItem(baseItem);
+            Track(baseItem, drink.CraftingStation, drink.Ingredients);
 
             ItemManager.Instance.AddItemConversion(new CustomItemConversion(new FermenterConversionConfig
             {
@@ -596,14 +779,20 @@ namespace KongStrong
             ItemDrop.ItemData.SharedData shared = item.ItemDrop.m_itemData.m_shared;
             shared.m_itemType = ItemDrop.ItemData.ItemType.Consumable;
             shared.m_consumeStatusEffect = null;
+            SetSkyrFood(shared);
+            Dress(item, "cup", "tex_skyrcup", 0f, 0.3f, null, config.Icon);
+            ItemManager.Instance.AddItem(item);
+            Track(item, _skyrCup.CraftingStation, _skyrCup.Ingredients);
+            Logger.LogInfo("Added KongSkyrCup (cloned from QueensJam).");
+        }
+
+        private void SetSkyrFood(ItemDrop.ItemData.SharedData shared)
+        {
             shared.m_food = _skyrCup.Health;
             shared.m_foodStamina = _skyrCup.Stamina;
             shared.m_foodEitr = _skyrCup.Eitr;
             shared.m_foodBurnTime = _skyrCup.Duration;
             shared.m_foodRegen = _skyrCup.Regen;
-            Dress(item, "cup", "tex_skyrcup", 0f, 0.3f, null, config.Icon);
-            ItemManager.Instance.AddItem(item);
-            Logger.LogInfo("Added KongSkyrCup (cloned from QueensJam).");
         }
 
         private RequirementConfig[] ParseRequirements(string owner, string value)

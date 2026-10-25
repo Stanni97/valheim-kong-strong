@@ -9,13 +9,32 @@ namespace KongStrong
     /// <summary>English and German texts.</summary>
     internal static class Texts
     {
-        public static void Register(Func<string, Drink> drink, SkyrCupSettings cup)
+        public static void Register(Func<string, Drink> drink)
         {
-            string M(string key) => Mathf.Max(1, Mathf.RoundToInt(drink(key).Duration / 60f)).ToString();
-            bool fireproof = Protects(drink("XXL").FireResistance);
             CustomLocalization loc = LocalizationManager.Instance.GetLocalization();
+            loc.AddTranslation("English", English(drink));
+            loc.AddTranslation("German", German(drink));
+        }
 
-            loc.AddTranslation("English", new Dictionary<string, string>
+        /// <summary>The descriptions name durations; after a config change (e.g. from the server) they are rebuilt.</summary>
+        public static void Refresh(Func<string, Drink> drink)
+        {
+            foreach (KeyValuePair<string, string> word in ServerSync.German ? German(drink) : English(drink))
+            {
+                if (word.Key.EndsWith("_desc"))
+                {
+                    ServerSync.SetWord(word.Key, word.Value);
+                }
+            }
+        }
+
+        private static string Minutes(Drink drink) => Mathf.Max(1, Mathf.RoundToInt(drink.Duration / 60f)).ToString();
+
+        private static Dictionary<string, string> English(Func<string, Drink> drink)
+        {
+            string M(string key) => Minutes(drink(key));
+            bool fireproof = Protects(drink("XXL").FireResistance);
+            return new Dictionary<string, string>
             {
                 { "item_kong_sugarfree", "Kong Strong Sugar Free" },
                 { "item_kong_sugarfree_desc", $"Ice-cold, blue and sugar free. More stamina and speed for {M("SugarFree")} minutes." },
@@ -99,9 +118,14 @@ namespace KongStrong
                 { "msg_kong_deposit", "Deposit: {0} empties, {1} coins" },
                 { "msg_kong_tapempty", "The tap is empty." },
                 { "msg_kong_refilled", "Tap refilled." },
-            });
+            };
+        }
 
-            loc.AddTranslation("German", new Dictionary<string, string>
+        private static Dictionary<string, string> German(Func<string, Drink> drink)
+        {
+            string M(string key) => Minutes(drink(key));
+            bool fireproof = Protects(drink("XXL").FireResistance);
+            return new Dictionary<string, string>
             {
                 { "item_kong_sugarfree", "Kong Strong Sugar Free" },
                 { "item_kong_sugarfree_desc", $"Eiskalt, blau und zuckerfrei. Mehr Ausdauer und Tempo für {M("SugarFree")} Minuten." },
@@ -185,7 +209,7 @@ namespace KongStrong
                 { "msg_kong_deposit", "Pfand: {0} Leergut, {1} Münzen" },
                 { "msg_kong_tapempty", "Die Zapfstelle ist leer." },
                 { "msg_kong_refilled", "Zapfstelle aufgefüllt." },
-            });
+            };
         }
 
         public static bool Protects(HitData.DamageModifier modifier)

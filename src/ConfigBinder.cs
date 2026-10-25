@@ -55,10 +55,11 @@ namespace KongStrong
             return entry.Value;
         }
 
+        /// <summary>synced: the server decides the value (see <see cref="ServerSync"/>); false for personal settings.</summary>
         public static T Bind<T>(ConfigFile config, string section, string key, T value, string description,
-                                IEnumerable<T> oldDefaults = null)
+                                IEnumerable<T> oldDefaults = null, bool synced = true)
         {
-            return Bind(config, section, key, value, new ConfigDescription(description), oldDefaults);
+            return Bind(config, section, key, value, synced ? ServerSync.Desc(description) : new ConfigDescription(description), oldDefaults);
         }
 
         private static int StoredVersion(string path)

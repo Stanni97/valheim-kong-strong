@@ -109,6 +109,10 @@ In [r2modman](https://thunderstore.io/c/valheim/p/ebkr/r2modman/) or [Gale](http
 
 Put `BepInExPack_Valheim`, `Jotunn.dll` and `KongStrong/KongStrong.dll` on the server the same way. On Linux start the server with `start_server_bepinex.sh`, on Windows as usual.
 
+The server's config (`BepInEx/config/felix.kongstrong.cfg` on the server) applies to every player while they are connected: drinks, crash, tolerance, Skyr cup and build pieces. The players' own config is not changed and counts again once they leave. `[Sound]`, `CustomModels` and `PowerAnimation` stay personal. This also applies when someone hosts a game: then their config counts.
+
+**Shout:** Put a `shout.wav` on the server (path from `[Sound] CustomShoutFile`, default `BepInEx/config/KongStrong/shout.wav`, 16 bit PCM, at most 4 MB) and every player hears it while connected. Without one, everyone hears their own file.
+
 ### Does it work?
 
 - `BepInEx/LogOutput.log` contains lines like `Added KongStrongSugarFree`.
@@ -118,13 +122,13 @@ Put `BepInExPack_Valheim`, `Jotunn.dll` and `KongStrong/KongStrong.dll` on the s
 
 ## Configuration
 
-After the first start with the mod, the file `BepInEx/config/felix.kongstrong.cfg` is in your Valheim folder. Changes take effect after restarting the game.
+After the first start with the mod, the file `BepInEx/config/felix.kongstrong.cfg` is in your Valheim folder. On a server the server's config counts (see [Dedicated server](#dedicated-server)). Changed values work right away, e.g. through the Configuration Manager (F1).
 
 The drink sections `[SugarFree]`, `[Classic]`, `[Skyr]`, `[XXL]`, `[Frost]`, `[Toxic]`, `[Eitr]` and `[MetBombe]` all have the same keys:
 
 | Key | Meaning |
 | --- | --- |
-| `Enabled` | Turn the drink on or off |
+| `Enabled` | Turn the drink on or off (off: no recipe) |
 | `DurationSeconds` | Duration of the buff in seconds |
 | `InstantStamina` | Stamina restored immediately |
 | `StaminaRegenBonusPercent` | Faster stamina regeneration in % |
@@ -142,7 +146,7 @@ The drink sections `[SugarFree]`, `[Classic]`, `[Skyr]`, `[XXL]`, `[Frost]`, `[T
 
 More sections: `[SugarCrash]`, `[CaffeineTolerance]`, `[HeartRacing]`, `[SkyrCup]`, `[General]` (sleep block, empties, models, animation), `[Sound]` and one per build piece: `[Fridge]`, `[CanPyramid]`, `[DepositMachine]`, `[Tap]`.
 
-**Updates:** Recipes (`Ingredients`) and crafting station (`CraftingStation`) that still hold the default of an older version are set to the new default automatically at startup. Values you changed yourself stay as they are, so you do not have to delete the config.
+**Updates:** Values that still hold the default of an older version are set to the new default once after an update. Values you changed yourself stay as they are, so you do not have to delete the config.
 
 The prefab names of ingredients are in the [Jotunn item list](https://valheim-modding.github.io/Jotunn/data/objects/item-list.html).
 

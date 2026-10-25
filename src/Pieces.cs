@@ -17,8 +17,8 @@ namespace KongStrong
 
         public void Bind(ConfigFile config)
         {
-            Enabled = config.Bind(Key, "Enabled", Enabled, "Adds this piece to the hammer.").Value;
-            Ingredients = config.Bind(Key, "Ingredients", Ingredients, "Comma separated list of ItemPrefab:Amount.").Value;
+            Enabled = config.Bind(Key, "Enabled", Enabled, ServerSync.Desc("Can be built. Off: not in the hammer menu.")).Value;
+            Ingredients = config.Bind(Key, "Ingredients", Ingredients, ServerSync.Desc("Comma separated list of ItemPrefab:Amount.")).Value;
         }
     }
 
@@ -36,30 +36,29 @@ namespace KongStrong
             Pyramid.Bind(config);
             Automat.Bind(config);
             Tap.Bind(config);
-            KongDepositMachine.CoinsPerEmpty = config.Bind(Automat.Key, "CoinsPerEmpty", 1, "Coins paid for each empty.").Value;
-            KongTap.Full = Mathf.Max(1, config.Bind(Tap.Key, "Servings", 38, "Drinks in one XXL canister on the tap.").Value);
+            KongDepositMachine.CoinsPerEmpty = config.Bind(Automat.Key, "CoinsPerEmpty", 1, ServerSync.Desc("Coins paid for each empty.")).Value;
+            KongTap.Full = Mathf.Max(1, config.Bind(Tap.Key, "Servings", 38, ServerSync.Desc("Drinks in one XXL canister on the tap.")).Value);
         }
 
+        private static readonly Dictionary<PieceSettings, Piece> Added = new Dictionary<PieceSettings, Piece>();
+
+        /// <summary>All pieces are added; Enabled only shows or hides them in the hammer, so the server can change it.</summary>
         public static void Register(Func<string, string, RequirementConfig[]> parse, Action<string, Action> attempt)
         {
-            if (Fridge.Enabled)
-            {
-                attempt("piece_kong_fridge", () => AddFridge(parse));
-            }
+            attempt("piece_kong_fridge", () => AddFridge(parse));
+            attempt("piece_kong_pyramid", () => AddPyramid(parse));
+            attempt("piece_kong_automat", () => AddAutomat(parse));
+            attempt("piece_kong_tap", () => AddTap(parse));
+        }
 
-            if (Pyramid.Enabled)
+        /// <summary>Applies changed settings to the pieces in the hammer.</summary>
+        public static void Apply()
+        {
+            foreach (KeyValuePair<PieceSettings, Piece> added in Added)
             {
-                attempt("piece_kong_pyramid", () => AddPyramid(parse));
-            }
-
-            if (Automat.Enabled)
-            {
-                attempt("piece_kong_automat", () => AddAutomat(parse));
-            }
-
-            if (Tap.Enabled)
-            {
-                attempt("piece_kong_tap", () => AddTap(parse));
+                PieceSettings settings = added.Key;
+                ServerSync.SetPiece(added.Value, settings.Enabled, settings.Ingredients,
+                    settings == Tap ? (Func<string, bool>)(prefab => prefab != "KongStrongXXL") : null);
             }
         }
 
@@ -95,7 +94,8 @@ namespace KongStrong
             return prefab;
         }
 
-        private static void Add(GameObject prefab, string token, string icon, string category, string station, RequirementConfig[] requirements)
+        private static void Add(PieceSettings settings, GameObject prefab, string token, string icon, string category, string station,
+                                RequirementConfig[] requirements)
         {
             var config = new PieceConfig
             {
@@ -107,7 +107,10 @@ namespace KongStrong
                 CraftingStation = station,
                 Requirements = requirements,
             };
-            PieceManager.Instance.AddPiece(new CustomPiece(prefab, false, config));
+            var piece = new CustomPiece(prefab, false, config);
+            PieceManager.Instance.AddPiece(piece);
+            Added[settings] = piece.Piece;
+            ServerSync.Remember(piece.Piece, "", settings.Ingredients);
         }
 
         private static void AddFridge(Func<string, string, RequirementConfig[]> parse)
@@ -127,7 +130,7 @@ namespace KongStrong
             container.m_height = 4;
             container.m_open = open;
             container.m_closed = closed;
-            Add(prefab, "piece_kong_fridge", "fridge", PieceCategories.Furniture, CraftingStations.Workbench,
+            Add(Fridge, prefab, "piece_kong_fridge", "fridge", PieceCategories.Furniture, CraftingStations.Workbench,
                 parse("piece_kong_fridge", Fridge.Ingredients));
         }
 
@@ -145,7 +148,7 @@ namespace KongStrong
             box.center = new Vector3(0f, 0.48f, 0f);
             box.size = new Vector3(0.42f, 0.96f, 0.1f);
             prefab.GetComponent<Piece>().m_comfort = 1;
-            Add(prefab, "piece_kong_pyramid", "pyramid", PieceCategories.Furniture, null,
+            Add(Pyramid, prefab, "piece_kong_pyramid", "pyramid", PieceCategories.Furniture, null,
                 parse("piece_kong_pyramid", Pyramid.Ingredients));
         }
 
@@ -157,7 +160,7 @@ namespace KongStrong
             Visuals.AddPart(model, "body", Models.Automat(), Visuals.PieceMaterial(german ? "tex_automat" : "tex_automat_en"),
                 Vector3.zero, Quaternion.identity);
             prefab.AddComponent<KongDepositMachine>();
-            Add(prefab, "piece_kong_automat", "automat", PieceCategories.Misc, CraftingStations.Workbench,
+            Add(Automat, prefab, "piece_kong_automat", "automat", PieceCategories.Misc, CraftingStations.Workbench,
                 parse("piece_kong_automat", Automat.Ingredients));
         }
 
@@ -178,7 +181,7 @@ namespace KongStrong
                 }
             }
 
-            Add(prefab, "piece_kong_tap", "tap", PieceCategories.Misc, CraftingStations.Workbench, requirements);
+            Add(Tap, prefab, "piece_kong_tap", "tap", PieceCategories.Misc, CraftingStations.Workbench, requirements);
         }
     }
 }

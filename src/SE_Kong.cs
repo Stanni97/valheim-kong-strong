@@ -12,6 +12,7 @@ namespace KongStrong
     internal class SE_Kong : SE_Stats
     {
         internal static StatusEffect Crash;
+        internal static bool CrashEnabled = true;
         internal static StatusEffect HeartRacing;
         internal static ToleranceSettings Tolerance = new ToleranceSettings();
 
@@ -47,7 +48,7 @@ namespace KongStrong
             base.Stop();
 
             // Only when the buff ran out, not when it was cleared by death or logout.
-            if (CausesCrash && Crash != null && IsDone() && m_character != null && m_character == Player.m_localPlayer)
+            if (CausesCrash && CrashEnabled && Crash != null && IsDone() && m_character != null && m_character == Player.m_localPlayer)
             {
                 m_character.GetSEMan().AddStatusEffect(Crash.NameHash(), true);
             }

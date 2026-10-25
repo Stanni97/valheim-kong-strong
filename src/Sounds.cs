@@ -43,7 +43,7 @@ namespace KongStrong
             return FromWav(Path.GetFileNameWithoutExtension(path), File.ReadAllBytes(path));
         }
 
-        private static AudioClip FromWav(string name, byte[] data)
+        public static AudioClip FromWav(string name, byte[] data)
         {
             int channels = 1, rate = 22050, bits = 16, offset = 12, dataStart = -1, dataLength = 0;
             while (offset + 8 <= data.Length)

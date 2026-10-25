@@ -111,6 +111,10 @@ In [r2modman](https://thunderstore.io/c/valheim/p/ebkr/r2modman/) oder [Gale](ht
 
 `BepInExPack_Valheim`, `Jotunn.dll` und `KongStrong/KongStrong.dll` auf dem Server genauso ablegen. Unter Linux startest du den Server mit `start_server_bepinex.sh`, unter Windows ganz normal.
 
+Die Config des Servers (`BepInEx/config/felix.kongstrong.cfg` auf dem Server) gilt für alle Spieler, solange sie verbunden sind: Drinks, Crash, Toleranz, Skyr-Becher und Baustücke. Die eigene Config der Spieler bleibt unverändert und gilt wieder, sobald sie den Server verlassen. `[Sound]`, `CustomModels` und `PowerAnimation` bleiben persönlich. Das gilt auch, wenn jemand im Spiel einen Server hostet: dann zählt seine Config.
+
+**Ruf:** Liegt auf dem Server eine `shout.wav` (Pfad aus `[Sound] CustomShoutFile`, Standard `BepInEx/config/KongStrong/shout.wav`, 16 Bit PCM, höchstens 4 MB), hört jeder Spieler diese, solange er verbunden ist. Ohne eine hört jeder seine eigene Datei.
+
 ### Funktioniert es?
 
 - In `BepInEx/LogOutput.log` stehen Zeilen wie `Added KongStrongSugarFree`.
@@ -120,13 +124,13 @@ In [r2modman](https://thunderstore.io/c/valheim/p/ebkr/r2modman/) oder [Gale](ht
 
 ## Konfiguration
 
-Nach dem ersten Start mit dem Mod liegt die Datei `BepInEx/config/felix.kongstrong.cfg` im Valheim-Ordner. Änderungen greifen nach einem Neustart des Spiels.
+Nach dem ersten Start mit dem Mod liegt die Datei `BepInEx/config/felix.kongstrong.cfg` im Valheim-Ordner. Auf einem Server gilt die Config des Servers (siehe [Dedicated Server](#dedicated-server)). Geänderte Werte wirken sofort, zum Beispiel über den Configuration Manager (F1).
 
 Die Drink-Abschnitte `[SugarFree]`, `[Classic]`, `[Skyr]`, `[XXL]`, `[Frost]`, `[Toxic]`, `[Eitr]` und `[MetBombe]` haben jeweils dieselben Schlüssel:
 
 | Schlüssel | Bedeutung |
 | --- | --- |
-| `Enabled` | Drink an- oder abschalten |
+| `Enabled` | Drink an- oder abschalten (aus: kein Rezept) |
 | `DurationSeconds` | Dauer des Buffs in Sekunden |
 | `InstantStamina` | Ausdauer, die sofort aufgefüllt wird |
 | `StaminaRegenBonusPercent` | Schnellere Ausdauer-Regeneration in % |
@@ -144,7 +148,7 @@ Die Drink-Abschnitte `[SugarFree]`, `[Classic]`, `[Skyr]`, `[XXL]`, `[Frost]`, `
 
 Weitere Abschnitte: `[SugarCrash]`, `[CaffeineTolerance]`, `[HeartRacing]`, `[SkyrCup]`, `[General]` (Schlafsperre, Leergut, Modelle, Animation), `[Sound]` und je Baustück `[Fridge]`, `[CanPyramid]`, `[DepositMachine]`, `[Tap]`.
 
-**Updates:** Rezepte (`Ingredients`) und Herstellungsort (`CraftingStation`), die noch auf dem Standard einer älteren Version stehen, werden beim Start automatisch auf den neuen Standard gesetzt. Selbst geänderte Werte bleiben unberührt, die Config muss also nicht gelöscht werden.
+**Updates:** Werte, die noch auf dem Standard einer älteren Version stehen, werden nach einem Update einmal auf den neuen Standard gesetzt. Selbst geänderte Werte bleiben unberührt, die Config muss also nicht gelöscht werden.
 
 Die Prefab-Namen der Zutaten stehen in der [Jotunn-Itemliste](https://valheim-modding.github.io/Jotunn/data/objects/item-list.html).
 

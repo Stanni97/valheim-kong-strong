@@ -61,7 +61,7 @@ namespace KongStrong
 
         public void Bind(ConfigFile config)
         {
-            Enabled = B(config, "Enabled", Enabled, "Adds this drink to the game.");
+            Enabled = B(config, "Enabled", Enabled, "Can be crafted. Off: the recipe is gone.");
             Duration = B(config, "DurationSeconds", Duration, "How long the buff lasts, in seconds.");
             InstantStamina = B(config, "InstantStamina", InstantStamina, "Stamina restored immediately when drinking.");
             InstantEitr = B(config, "InstantEitr", InstantEitr, "Eitr restored immediately when drinking.");
@@ -81,10 +81,10 @@ namespace KongStrong
                 "Poison damage while the buff is active.");
             ReturnsEmpty = B(config, "ReturnsEmpty", ReturnsEmpty, "Drinking leaves an empty can or bottle (Leergut) in the inventory.");
             CraftingStation = ConfigBinder.Bind(config, Key, "CraftingStation", CraftingStation,
-                new ConfigDescription(Fermented ? "Where the fermenter base is crafted." : "Where the drink is crafted.",
+                ServerSync.Desc(Fermented ? "Where the fermenter base is crafted." : "Where the drink is crafted.",
                     CraftingStations.GetAcceptableValueList()), Old("CraftingStation"));
             Ingredients = ConfigBinder.Bind(config, Key, "Ingredients", Ingredients,
-                "Comma separated list of ItemPrefab:Amount" + (Fermented ? " for the fermenter base." : "."), Old("Ingredients"));
+                ServerSync.Desc("Comma separated list of ItemPrefab:Amount" + (Fermented ? " for the fermenter base." : ".")), Old("Ingredients"));
             Amount = B(config, "Amount", Amount, Fermented ? "Fermenter bases produced per craft." : "Drinks produced per craft.");
             if (Fermented)
             {
@@ -94,7 +94,7 @@ namespace KongStrong
 
         private T B<T>(ConfigFile config, string key, T value, string description)
         {
-            return ConfigBinder.Bind(config, Key, key, value, description);
+            return ConfigBinder.Bind(config, Key, key, value, ServerSync.Desc(description));
         }
 
         private IEnumerable<string> Old(string key)
