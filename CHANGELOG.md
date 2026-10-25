@@ -8,7 +8,8 @@
 - **Shout from the server:** If the server has a `shout.wav` (`[Sound] CustomShoutFile`), every player hears that one while connected. Without one, your own file plays. Whether the shout is on and how loud stays your choice.
 - Changed values work right away, without a restart: recipes, buffs, crash and heart racing, Skyr cup, build pieces and the durations in the descriptions.
 - `Enabled = false` now removes the recipe (or the piece from the hammer) instead of taking the item out of the game.
-- Old default values in the config values in the config are now replaced only once after an update (new key `[General] ConfigVersion`). Before, the check ran at every start, so turning the shout off (`Shout = false`) was switched back on at the next start. Your own values are kept.
+- Old default values in the config are now replaced only once after an update (new key `[General] ConfigVersion`). Before, the check ran at every start, so turning the shout off (`Shout = false`) was switched back on at the next start. Your own values are kept.
+- The deposit machine icon has English lettering (DEPOSIT) unless the game is in German, like its texture. The READMEs show the empty can and, in English, the English deposit machine.
 
 ## 1.2.2
 

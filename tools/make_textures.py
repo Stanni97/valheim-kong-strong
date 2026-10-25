@@ -330,8 +330,8 @@ def icon_fridge():
     return _box_icon(tex.crop((0, 0, 256, 512)), tex.crop((256, 0, 512, 256)), (214, 216, 220, 255), x0=170, x1=330)
 
 
-def icon_automat():
-    tex = tex_automat()
+def icon_automat(english=False):
+    tex = tex_automat(english)
     return _box_icon(tex.crop(AUTOMAT_FRONT), tex.crop(AUTOMAT_SIDE), (74, 78, 88, 255), x0=160, x1=340)
 
 
@@ -363,7 +363,8 @@ def icon_tap():
     return layer
 
 
-PIECE_ICONS = {"fridge": icon_fridge, "automat": icon_automat, "pyramid": icon_pyramid, "tap": icon_tap}
+PIECE_ICONS = {"fridge": icon_fridge, "automat": icon_automat, "automat_en": lambda: icon_automat(english=True),
+               "pyramid": icon_pyramid, "tap": icon_tap}
 
 
 TEXTURES = {

@@ -9,6 +9,7 @@
 - Geänderte Werte wirken sofort, ohne Neustart: Rezepte, Buffs, Crash und Herzrasen, Skyr-Becher, Baustücke und die Dauer in den Beschreibungen.
 - `Enabled = false` entfernt jetzt das Rezept (oder das Baustück aus dem Hammer), statt den Gegenstand ganz aus dem Spiel zu nehmen.
 - Alte Standardwerte in der Config werden nach einem Update nur noch einmal ersetzt (neuer Eintrag `[General] ConfigVersion`). Vorher lief die Prüfung bei jedem Start, sodass ein ausgeschalteter Ruf (`Shout = false`) beim nächsten Start wieder an war. Eigene Werte bleiben erhalten.
+- Das Icon des Pfandautomaten hat englische Schrift (DEPOSIT), außer das Spiel ist auf Deutsch, wie seine Textur. Die READMEs zeigen die Pfanddose und auf Englisch den englischen Pfandautomaten.
 
 ## 1.2.2
 

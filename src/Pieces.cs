@@ -160,7 +160,7 @@ namespace KongStrong
             Visuals.AddPart(model, "body", Models.Automat(), Visuals.PieceMaterial(german ? "tex_automat" : "tex_automat_en"),
                 Vector3.zero, Quaternion.identity);
             prefab.AddComponent<KongDepositMachine>();
-            Add(Automat, prefab, "piece_kong_automat", "automat", PieceCategories.Misc, CraftingStations.Workbench,
+            Add(Automat, prefab, "piece_kong_automat", german ? "automat" : "automat_en", PieceCategories.Misc, CraftingStations.Workbench,
                 parse("piece_kong_automat", Automat.Ingredients));
         }
 
