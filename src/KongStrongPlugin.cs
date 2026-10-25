@@ -19,7 +19,7 @@ namespace KongStrong
         public const string PluginGUID = "felix.kongstrong";
         public const string PluginName = "Kong Strong Energy";
         // Keep in sync with <Version> in KongStrong.csproj.
-        public const string PluginVersion = "1.2.2";
+        public const string PluginVersion = "1.2.3";
 
         // Shared by all drinks, the crash and heart racing, so only one of them can be active at a time.
         private const string StatusCategory = "kongstrong";
@@ -131,6 +131,7 @@ namespace KongStrong
 
         private void Awake()
         {
+            ConfigBinder.Begin(Config);
             foreach (Drink drink in _drinks)
             {
                 drink.Bind(Config);
@@ -139,6 +140,7 @@ namespace KongStrong
             _skyrCup.Bind(Config);
             Pieces.Bind(Config);
             BindGeneral();
+            ConfigBinder.Finish(Config, Logger);
 
             Texts.Register(Get, _skyrCup);
             Harmony.CreateAndPatchAll(typeof(Patches), PluginGUID);
@@ -181,7 +183,7 @@ namespace KongStrong
             _heartStaminaPenalty = Config.Bind("HeartRacing", "StaminaRegenPenaltyPercent", 25,
                 "Slower stamina regeneration during heart racing, in percent.").Value;
 
-            // 1.2.0 shipped with the shout off and 0.8; values still at that default move to the new one on update.
+            // 1.2.0 shipped with the shout off and 0.8; values still at that default move to the new one once (see ConfigBinder).
             _shout = ConfigBinder.Bind(Config, "Sound", "Shout", true,
                 "Every Kong Strong drink (cans, XXL, tap) is followed by a shouted \"D K!\".", new[] { false });
             _customModels = Config.Bind("General", "CustomModels", true,

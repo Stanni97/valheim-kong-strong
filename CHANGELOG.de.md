@@ -2,6 +2,10 @@
 
 [English](CHANGELOG.md)
 
+## 1.2.3
+
+- Alte Standardwerte in der Config werden nach einem Update nur noch einmal ersetzt (neuer Eintrag `[General] ConfigVersion`). Vorher lief die Prüfung bei jedem Start, sodass ein ausgeschalteter Ruf (`Shout = false`) beim nächsten Start wieder an war. Eigene Werte bleiben erhalten.
+
 ## 1.2.2
 
 - Ein dedizierter Server lädt den Ruf nicht mehr, und ohne `shout.wav` steht „No shout file“ nur noch einmal im Log statt einmal pro Getränk.

@@ -2,6 +2,10 @@
 
 [Deutsch](CHANGELOG.de.md)
 
+## 1.2.3
+
+- Old default values in the config are now replaced only once after an update (new key `[General] ConfigVersion`). Before, the check ran at every start, so turning the shout off (`Shout = false`) was switched back on at the next start. Your own values are kept.
+
 ## 1.2.2
 
 - A dedicated server no longer loads the shout, and without a `shout.wav` the "No shout file" line is logged once instead of once per drink.
